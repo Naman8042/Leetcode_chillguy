@@ -34,7 +34,7 @@ const PieChart: React.FC<PieChartProps> = ({ data }) => {
 
   return (
     <div className="w-full h-80 sm:w-[60%] bg-white p-4 rounded-md flex justify-center items-center">
-      <Pie data={chartData} options={options} />
+      <Pie data={chartData} />
     </div>
   );
 };
