@@ -22,15 +22,7 @@ const PieChart: React.FC<PieChartProps> = ({ data }) => {
   };
 
   // Define chart options (for customizing the pie chart)
-  const options = {
-    responsive: true,
-    maintainAspectRatio: false, // Allow manual control of height and width
-    plugins: {
-      legend: {
-        position: 'top',
-      },
-    },
-  };
+  
 
   return (
     <div className="w-full h-80 sm:w-[60%] bg-white p-4 rounded-md flex justify-center items-center">
