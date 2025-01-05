@@ -16,7 +16,7 @@ import Chillguy from '@/assets/chill_guy.png'
 
 // Props type for the showIcon component
 interface IconProps {
-    imageSrc: string | StaticImageData; // Supports both static and dynamic images
+    imageSrc: string ; // Supports both static and dynamic images
     label: string;
     value: number | string;
 }
