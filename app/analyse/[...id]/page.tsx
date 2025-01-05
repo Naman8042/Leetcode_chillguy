@@ -42,11 +42,6 @@ interface SubmissionCalendar {
 }
 
 
-const questionData = {
-    easy: 15,
-    medium: 30,
-    hard: 10
-};
 
 const calculateLongestStreak = (submissionCalendar: Record<string, number> | null): number => {
     if (!submissionCalendar) {
@@ -91,13 +86,13 @@ function calculateChillLevelPercentage(
   ): number {
     
     // Metric 1: Total problems solved (scaled from 0 to 100%)
-    let totalSolvedPercentage = Math.min((totalSolved / 500) * 100, 100); // Scale based on totalSolved
+    const totalSolvedPercentage = Math.min((totalSolved / 500) * 100, 100); // Scale based on totalSolved
   
     // Metric 2: Streak (scaled from 0 to 100%)
-    let streakPercentage = Math.min((streak / 20) * 100, 100); // Scale based on streak length
+    const streakPercentage = Math.min((streak / 20) * 100, 100); // Scale based on streak length
   
     // Metric 3: Difficulty distribution (scaled from 0 to 100%)
-    let difficultyPercentage = Math.min((hard / totalSolved) * 100, 100); // How many Hard problems solved
+    const difficultyPercentage = Math.min((hard / totalSolved) * 100, 100); // How many Hard problems solved
   
     // Combine all metrics (you can adjust weights based on what you value more)
     const weightedScore = (totalSolvedPercentage * 0.5) + (streakPercentage * 0.3) + (difficultyPercentage * 0.2);
@@ -593,6 +588,7 @@ export default function Analyse() {
                 
             }
             catch (err) {
+                console.log(err)
                 toast.error('Username not found')
             }
         }
