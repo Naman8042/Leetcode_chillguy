@@ -26,7 +26,7 @@ export default function Home() {
         <div className='p-8 flex gap-2 flex-col items-center justify-center mt-5 rounded-md bg-white'>
           <input value={id} onChange={(e)=>setId(e.target.value)} type='text' placeholder='Enter Your Leetcode Username' className='w-full border p-3 text-base md:text-lg rounded-md outline-none'/>
           <button onClick={() => router.push(`/analyse/${id}`)} className='w-full p-2 bg-black py-2  text-white rounded-md font-semibold text-sm md:text-base'>Analyse Profile</button>
-          <button className='w-full p-2 bg-black py-2  text-white rounded-md font-semibold text-sm md:text-base'>Compare User</button>
+          <button onClick={() => router.push(`/compare`)} className='w-full p-2 bg-black py-2  text-white rounded-md font-semibold text-sm md:text-base'>Compare User</button>
         </div>
       </div>
     </div>
