@@ -12,11 +12,11 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import Chillguy from '@/assets/chill_guy.png'
-
+import { StaticImageData } from 'next/image';
 
 // Props type for the showIcon component
 interface IconProps {
-    imageSrc: string ; // Supports both static and dynamic images
+    imageSrc: string | StaticImageData; // Supports both static and dynamic images
     label: string;
     value: number | string;
 }
