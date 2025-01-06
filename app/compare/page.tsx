@@ -4,9 +4,20 @@ import { useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 
+interface ProfileResult {
+    totalSolved: number;
+    easySolved: number;
+    mediumSolved: number;
+    hardSolved: number;
+    ranking: number;
+    longestStreak: number;
+    chillGuyLevel: number;
+}
+
+
 export default function Compare() {
     const [profiles, setProfiles] = useState<string[]>(['']);
-    const [results, setResults] = useState<any[]>([]);
+    const [results, setResults] = useState<ProfileResult[]>([]);
     const [loadingStates, setLoadingStates] = useState<boolean[]>([]);
 
     const addProfile = () => {
@@ -84,7 +95,8 @@ export default function Compare() {
         <div className="flex flex-col items-center py-8 px-4 bg-gray-100 min-h-screen">
             <h1 className="text-3xl md:text-4xl font-bold text-center">Compare Leetcode Profiles</h1>
             <p className="text-sm md:text-lg my-6 text-gray-600 text-center">
-                Compare up to 5 LeetCode profiles to see who's the chillest coder!
+            Compare up to 5 LeetCode profiles to see who&apos;s the chillest coder!
+
             </p>
             <div className="w-full max-w-2xl flex flex-col gap-4 items-center justify-center mt-5 rounded-md bg-white p-4 sm:p-6">
                 {profiles.map((profile, index) => (
