@@ -43,11 +43,13 @@ export async function POST(req: NextRequest) {
   
   
       return NextResponse.json({steps});
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error', err);
+      const errorMessage = err instanceof Error ? err.message : 'Internal Server Error';
+
       return NextResponse.json({
         success: false,
-        error: err.message || 'Internal Server Error',
+        error: errorMessage,
       });
     }
   }
