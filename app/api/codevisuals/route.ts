@@ -148,13 +148,21 @@ The explanation should be detailed and easy to follow, suitable for debugging or
       }
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error:', error);
+
+    if (error instanceof Error) {
+        return NextResponse.json({
+            success: false,
+            error: error.message,
+        }, { status: 500 });
+    }
+
     return NextResponse.json({
-      success: false,
-      error: error.message,
-      details: error.response?.data
+        success: false,
+        error: "An unknown error occurred",
     }, { status: 500 });
-  }
+}
+
 }
 

@@ -17,13 +17,13 @@ const Page = () => {
       const response = await axios.post("/api/codevisuals", { code: text });
       if (response.data.success) {
         const rawText = response.data.data.rawText;
-        console.log(rawText)
+        console.log(rawText);
         // Process the text to remove special characters and clean it up
         const formattedText = rawText
           .replace(/[*-]/g, "") // Remove '*' and '-' characters
           .replace(/`/g, "") // Remove '`' characters
           .split("\n") // Split into lines
-          .filter((line: any) => line.trim() !== ""); // Remove empty lines
+          .filter((line: string) => line.trim() !== ""); // Remove empty lines
 
         setOutput(formattedText);
       } else {

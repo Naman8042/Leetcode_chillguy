@@ -13,8 +13,14 @@ import * as d3 from "d3";
 
 interface RecursionTreeNode {
   name: string;
-  params: any[];
+  params: string[];
   children: RecursionTreeNode[];
+}
+
+interface RawRecursionNode {
+  function: string;
+  params: Record<string, unknown>;
+  children: RawRecursionNode[];
 }
 
 interface D3Node {
@@ -40,11 +46,9 @@ const CodeExecutionPage = () => {
         const jsonData = JSON.parse(rawText);
   
         // Transform the recursion tree
-        const transformRecursionTree = (node: any): RecursionTreeNode => ({
+        const transformRecursionTree = (node: RawRecursionNode): RecursionTreeNode => ({
           name: node.function,
-          params: Object.entries(node.params).map(
-            ([key, value]) => `${key}: ${value}`
-          ),
+          params: Object.entries(node.params).map(([key, value]) => `${key}: ${String(value)}`),
           children: node.children.map(transformRecursionTree),
         });
   

@@ -52,10 +52,8 @@ export default function Home() {
         onClick={() => router.push("/execution")}
       >
         <h1 className="text-xl font-bold">Code Execution Flow</h1>
-        <p>
-          Understand your program's execution order for easier debugging and
-          logic tracing.
-        </p>
+        <p>Understand your program&apos;s execution order for easier debugging and logic tracing.</p>
+
         <div className="flex items-center justify-center">
           <Image src={Code_Execution} alt="" className="h-28 w-36" />
         </div>

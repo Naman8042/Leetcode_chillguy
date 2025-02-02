@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Parse execution trace - clean up markdown and formatting
-    
+
     // Create textual tree representation
 
     return NextResponse.json({
@@ -55,13 +55,23 @@ export async function POST(req: NextRequest) {
         rawText,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error:", error);
+
+    if (error instanceof Error) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: error.message,
+        },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json(
       {
         success: false,
-        error: error.message,
-        details: error.response?.data,
+        error: "An unknown error occurred",
       },
       { status: 500 }
     );
