@@ -2,6 +2,7 @@
 import Image from "next/image";
 import Recursion_tree from "@/assets/Recursion_tree.png";
 import Code_Execution from "@/assets/Code_execution.png";
+import Compare from '@/assets/Compare.png'
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -11,7 +12,7 @@ export default function Home() {
     ""
   );
   return (
-    <div className="mt-5 flex flex-col sm:flex-col md:flex-row lg:flex-row gap-10 px-5 sm:px-8 md:px-10 lg:px-10">
+    <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 pb-10 sm:pb-10 md:grid-cols-3 sm:flex-col md:flex-row lg:flex-row gap-10 px-5 sm:px-8 md:px-10 lg:px-10">
       <div className="flex-1 h-88 p-5 flex flex-col gap-3 border-2 rounded-xl hover:shadow-lg hover:z-30">
         <h1 className="text-xl font-bold">Leetcode Profile Analysis</h1>
         <p>
@@ -56,6 +57,17 @@ export default function Home() {
 
         <div className="flex items-center justify-center">
           <Image src={Code_Execution} alt="" className="h-28 w-36" />
+        </div>
+      </div>
+      <div
+        className="flex-1 h-88 p-5 flex flex-col gap-3 border-2 rounded-xl cursor-pointer hover:shadow-lg hover:z-30"
+        onClick={() => router.push("/compare")}
+      >
+        <h1 className="text-xl font-bold">Compare Profiles</h1>
+        <p>Compare your LeetCode profile with others to see how your problem-solving skills stack up.</p>
+
+        <div className="flex items-center justify-center">
+          <Image src={Compare} alt="" className="h-28 w-36" />
         </div>
       </div>
     </div>

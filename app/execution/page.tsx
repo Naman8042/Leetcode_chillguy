@@ -36,9 +36,17 @@ const Page = () => {
   };
 
   return (
-    <div className="p-6 h-svh  text-white flex justify-between gap-4">
+    <div className="p-6 h-svh  text-white flex justify-between gap-4 md:flex-row flex-col">
       {/* Monaco Editor for Input */}
-      <div className="mb-4 w-1/2 h-[93%] ">
+      <div className="flex  justify-center ">
+      <button
+          onClick={getCode}
+          className=" bg-black block md:hidden text-white w-1/2  text-base py-2 rounded-sm mb-1 hover:bg-blue-600"
+        >
+          Run
+        </button>
+      </div>
+      <div className=" md:w-1/2 h-[9000px] md:h-[93%] ">
         <div className="h-full border border-gray-700 rounded">
           <MonacoEditor
             height="100%"
@@ -59,10 +67,10 @@ const Page = () => {
       </div>
 
       {/* Output Section */}
-      <div className="h-[93%] w-1/2">
+      <div className="md:w-1/2 h-[9000px] md:h-[93%]">
         <button
           onClick={getCode}
-          className=" bg-black text-white px-4  text-sm py-1 rounded-sm mb-1 hover:bg-blue-600"
+          className=" bg-black hidden md:block text-white px-4  text-sm py-1 rounded-sm mb-1 hover:bg-blue-600"
         >
           Run
         </button>
