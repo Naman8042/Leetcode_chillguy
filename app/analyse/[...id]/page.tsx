@@ -181,7 +181,7 @@ export default function Analyse() {
         )
     }
     return (
-        <div className='bg-gray-100 min-h-screen p-4 md:px-20'>
+        <div className=' mt-4 p-4 md:px-20'>
             <ChillGuy Username={id} chillguylevel={chillGuyLevel}/>
             <div className="flex flex-wrap justify-center sm:justify-between w-full items-center gap-4 ">
                 <ShowIcon imageSrc={Trophy} label="Total Solved" value={totalSolved} />
