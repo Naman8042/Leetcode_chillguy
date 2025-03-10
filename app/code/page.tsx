@@ -139,7 +139,7 @@ const CodeExecutionPage = () => {
     //   <h3>Recursion Tree</h3>
     //   <svg id="recursionTree"></svg>
     // </div>
-    <div className="p-6  h-svh text-white flex justify-between gap-4 md:flex-row flex-col">
+    <div className="p-6  h-screen text-white flex justify-between gap-4 md:flex-row flex-col pt-20">
       {/* Monaco Editor for Input */}
       <div className="flex  justify-center ">
       <button
@@ -149,7 +149,7 @@ const CodeExecutionPage = () => {
           Run
         </button>
       </div>
-      <div className="  md:w-1/2 h-[9000px] md:h-[93%]">
+      <div className="  md:w-1/2 h-[9000px] md:h-full bg-slate-500">
         <div className="h-full border border-gray-700 rounded">
           <MonacoEditor
             height="100%"
@@ -170,7 +170,7 @@ const CodeExecutionPage = () => {
       </div>
 
       {/* Output Section */}
-      <div className="h-[9000px] md:h-[93%] md:w-1/2">
+      <div className="h-[9000px] md:h-full md:w-1/2">
         <button
           onClick={getCode}
           className=" bg-black hidden md:block text-white px-4  text-sm py-1 rounded-sm mb-1 hover:bg-blue-600"

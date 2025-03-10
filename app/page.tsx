@@ -5,6 +5,8 @@ import Code_Execution from "@/assets/Code_execution.png";
 import Compare from '@/assets/Compare.png'
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import CodeSnip from '@/assets/Codesnippet.jpeg'
 
 export default function Home() {
   const router = useRouter();
@@ -12,7 +14,7 @@ export default function Home() {
     ""
   );
   return (
-    <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 pb-10 sm:pb-10 md:grid-cols-3 sm:flex-col md:flex-row lg:flex-row gap-10 px-5 sm:px-8 md:px-10 lg:px-10">
+    <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 pb-10 sm:pb-10 md:grid-cols-3 sm:flex-col md:flex-row lg:flex-row gap-10 px-5 sm:px-8 md:px-10 lg:px-10 py-20">
       <div className="flex-1 h-88 p-5 flex flex-col gap-3 border-2 rounded-xl hover:shadow-lg hover:z-30">
         <h1 className="text-xl font-bold">Leetcode Profile Analysis</h1>
         <p>
@@ -26,12 +28,22 @@ export default function Home() {
           placeholder="Enter Your Leetcode Username"
           className="w-full border p-2 text-sm md:text-base rounded-md outline-none"
         />
-        <button
-          onClick={() => router.push(`/analyse/${id}`)}
-          className="w-full p-2 bg-[#5564f5] py-2 text-white rounded-md font-semibold text-sm md:text-base"
-        >
+        <Button>
           Analyse Profile
-        </button>
+        </Button>
+      </div>
+
+      <div
+        className="flex-1 h-88 p-5 flex flex-col gap-3 border-2 rounded-xl cursor-pointer hover:shadow-lg hover:z-30"
+        onClick={() => router.push("/codesnippet")}
+      >
+        <h1 className="text-xl font-bold">Save Code Snippets</h1>
+        <p>
+        Store and organize your favorite code snippets for quick access and reuse.
+        </p>
+        <div className="flex items-center justify-center">
+        <Image src={CodeSnip} alt="" className="h-28 w-36 bg-blend-normal" />
+        </div>
       </div>
 
       <div
@@ -47,7 +59,7 @@ export default function Home() {
           <Image src={Recursion_tree} alt="" className="h-28 w-36" />
         </div>
       </div>
-
+      
       <div
         className="flex-1 h-88 p-5 flex flex-col gap-3 border-2 rounded-xl cursor-pointer hover:shadow-lg hover:z-30"
         onClick={() => router.push("/execution")}

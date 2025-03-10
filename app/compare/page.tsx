@@ -92,7 +92,7 @@ export default function Compare() {
     };
 
     return (
-        <div className="flex flex-col items-center py-8 px-4 bg-gray-50 mt-1 min-h-screen">
+        <div className="flex flex-col items-center py-8 px-4 bg-gray-50  min-h-screen mt-16">
             <h1 className="text-3xl md:text-4xl font-bold text-center">Compare Leetcode Profiles</h1>
             <p className="text-sm md:text-lg my-6 text-gray-600 text-center">
             Compare up to 5 LeetCode profiles to see who&apos;s the chillest coder!
