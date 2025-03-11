@@ -35,9 +35,9 @@ export  async function POST(req: NextRequest) {
 
       // Return success response
       return NextResponse.json({ message: "Snippet added", newSnippet:newSnippet });
-    } catch (error:any) {
+    } catch (error) {
       console.error("Error adding snippet:", error);
-      return NextResponse.json({ error: "Error adding snippet", details: error.message });
+      return NextResponse.json({ error: "Error adding snippet", details: error });
     }  
 }
 

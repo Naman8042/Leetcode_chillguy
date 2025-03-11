@@ -43,10 +43,10 @@ export async function POST(request:NextRequest) {
             savedUser
            })
     }
-    catch(err:any){
+    catch(err){
         console.log(err)
         return NextResponse.json(
-            err.message
+            err
         )
     }
 }

@@ -101,17 +101,6 @@ interface Submission {
     __typename: string;
 }
 
-interface AnalyseProps {
-    id: string;
-    totalSolved: number;
-    totalSubmissions: number;
-    ranking: number;
-    submissionCalendar: SubmissionCalendar;
-    difficultySolved: { easy: number; medium: number; hard: number };
-    contributionPoint: number;
-    recentSubmissions: Submission[];
-}
-
 export default async function Analyse({ params }: { params: { id: string } }) {
     const { id } = await params;
     console.log(id[0])
@@ -191,7 +180,7 @@ interface ChillGuyProps {
 }
 
 function ChillGuy({ Username, chillguylevel }: ChillGuyProps) {
-    let levelAsPercentage = chillguylevel > 1 ? Math.floor(chillguylevel) : Math.floor(chillguylevel * 100);
+    const levelAsPercentage = chillguylevel > 1 ? Math.floor(chillguylevel) : Math.floor(chillguylevel * 100);
 
     return (
         <div className="flex flex-col justify-between items-center bg-white my-5 rounded-md p-5 border">

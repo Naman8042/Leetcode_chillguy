@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { LoginForm } from "@/components/login-form";
 
 const Page = () => {
-  const router = useRouter();
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
 

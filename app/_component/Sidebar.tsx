@@ -11,7 +11,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Menu, X } from "lucide-react"; // Icons for open/close
-import Link from "next/link";
 import { useSession } from "next-auth/react";
 
 interface Folder {
@@ -23,10 +22,10 @@ interface SidebarProps {
   onSelectFolder: (folderId: string) => void;
 }
 
-export default function Sidebar({ onSelectFolder }: SidebarProps) {
+export default function Sidebar() {
 
   const [isOpen, setIsOpen] = useState(false);
-  const [authenticated, setIsAuthenticated] = useState(false);
+
   const {  status } = useSession();
   const [folders, setFolders] = useState<Folder[]>([]);
   const [folderName, setFolderName] = useState("");
@@ -45,7 +44,7 @@ export default function Sidebar({ onSelectFolder }: SidebarProps) {
 
   const handleCreateFolder = async () => {
     if (!folderName) return;
-    const res = await axios.post("/api/codesnippet", { name: folderName });
+    await axios.post("/api/codesnippet", { name: folderName });
     setFolderName("");
     setOpen(false);
     fetchFolders();

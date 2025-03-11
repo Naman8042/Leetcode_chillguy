@@ -1,4 +1,4 @@
-import CredentialsProvider from "next-auth/providers/credentials";
+import CredentialsProvider from "next-auth/providers/credentials"; 
 import User from "@/models/userModels";
 import bcrypt from "bcryptjs";
 
@@ -7,19 +7,22 @@ export const option = {
     CredentialsProvider({
       name: "Email",
       credentials: {
-        email: { label: "email", type: "text", placeholder: "Email" },
-        password: {
-          label: "password",
-          type: "password",
-          placeholder: "Password",
-        },
+        email: { label: "Email", type: "text", placeholder: "Email" },
+        password: { label: "Password", type: "password", placeholder: "Password" },
       },
-      async authorize(credentials: any) {
-        const { email, password } = credentials;
+      
+      async authorize(credentials) {
+        // Ensure credentials exist and assert its type
+        if (!credentials || !credentials.email || !credentials.password) {
+          throw new Error("Missing credentials");
+        }
+
+        const { email, password } = credentials as { email: string; password: string };
+
         console.log(email);
         console.log(password);
 
-        const user = await User.findOne({ email: email });
+        const user = await User.findOne({ email });
 
         console.log(user);
         if (!user) {
@@ -33,7 +36,7 @@ export const option = {
         }
 
         return {
-          id: user._id,
+          id: user._id.toString(),
           name: user.userName,
           email: user.email,
         };
@@ -41,14 +44,12 @@ export const option = {
     }),
   ],
   pages: {
-    signIn: "/login", // Custom login page
+    signIn: "/login",
   },
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
-    session: ({ session, token, user }: any) => {
-      // console.log(session)
-      // console.log(user)
-      if (session && session.user) {
+    session: ({ session, token }: any) => {
+      if (session?.user) {
         session.user.id = token.sub;
       }
       return session;
