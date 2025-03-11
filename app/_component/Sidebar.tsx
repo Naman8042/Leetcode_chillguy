@@ -18,9 +18,7 @@ interface Folder {
   name: string;
 }
 
-interface SidebarProps {
-  onSelectFolder: (folderId: string) => void;
-}
+
 
 export default function Sidebar() {
 

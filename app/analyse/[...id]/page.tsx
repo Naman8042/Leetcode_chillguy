@@ -32,10 +32,6 @@ const ShowIcon: React.FC<IconProps> = ({ imageSrc, label, value }) => (
     </div>
 );
 
-interface SubmissionCalendar {
-    [key: string]: number; // Define the structure of the calendar data
-}
-
 const calculateLongestStreak = (submissionCalendar: Record<string, number> | null): number => {
     if (!submissionCalendar) {
         return 0; // No submissions mean no streak
@@ -92,14 +88,7 @@ function calculateChillLevelPercentage(
     return weightedScore; // Chill Guy level percentage
 }
 
-interface Submission {
-    title: string;
-    titleSlug: string;
-    timestamp: string;
-    statusDisplay: string;
-    lang: string;
-    __typename: string;
-}
+
 
 export default async function Analyse({ params }: { params: { id: string } }) {
     const { id } = await params;
