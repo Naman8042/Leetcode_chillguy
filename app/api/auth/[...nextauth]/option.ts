@@ -1,6 +1,8 @@
 import CredentialsProvider from "next-auth/providers/credentials"; 
 import User from "@/models/userModels";
 import bcrypt from "bcryptjs";
+import { Session } from "next-auth";
+import { JWT } from "next-auth/jwt";
 
 export const option = {
   providers: [
@@ -48,9 +50,9 @@ export const option = {
   },
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
-    session: ({ session, token }: any) => {
+    session: ({ session, token }: { session: Session; token: JWT }) => {
       if (session?.user) {
-        session.user.id = token.sub;
+        session.user.id = token.sub as string;
       }
       return session;
     },
