@@ -18,7 +18,7 @@ export const option: NextAuthOptions = {
         }
 
         const { email, password } = credentials as { email: string; password: string };
--
+
         const user = await User.findOne({ email });
 
         if (!user) {
