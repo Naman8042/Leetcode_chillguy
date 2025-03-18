@@ -91,8 +91,7 @@ function calculateChillLevelPercentage(
 
 
 export default async function Analyse({ params }: { params: { id: string } }) {
-    const { id } = await params;
-    console.log(id[0])
+    const { id } =  params;
     // Fetch data on the server
     const response = await fetch(`https://leetcode-api-faisalshohag.vercel.app/${id}`);
     const data = await response.json();
