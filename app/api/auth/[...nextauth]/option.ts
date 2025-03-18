@@ -1,7 +1,7 @@
 import CredentialsProvider from "next-auth/providers/credentials";
 import User from "@/models/userModels";
 import bcrypt from "bcryptjs";
-import { NextAuthOptions, Session, TokenSet } from "next-auth";
+import { NextAuthOptions, Session } from "next-auth";
 import { JWT } from "next-auth/jwt";
 
 export const option: NextAuthOptions = {
