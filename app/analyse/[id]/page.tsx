@@ -95,7 +95,7 @@ interface PageProps {
 }
 
 
-export default async function Analyse({ params }:PageProps) {
+const Page = async ({ params }: PageProps) => {
     const { id } =  params;
     // Fetch data on the server
     const response = await fetch(`https://leetcode-api-faisalshohag.vercel.app/${id}`);
@@ -196,3 +196,5 @@ function RecentSubmissions({ title, timestamp }: SubmissionProps) {
         </div>
     );
 }
+
+export default Page
