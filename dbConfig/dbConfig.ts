@@ -1,30 +1,25 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
-let isConnected = false; // Track the connection state to avoid multiple connections
+const MONGODB_URI = process.env.MONGODB_URI;
 
-export async function connect() {
-  if (isConnected) {
-    console.log("MongoDB is already connected");
-    return;
-  }
-
-  try {
-    await mongoose.connect(process.env.MONGO_URL!, {
-    });
-
-    const connection = mongoose.connection;
-
-    connection.once("connected", () => {
-      isConnected = true; // Set connection state to true
-      console.log("MongoDB Connected");
-    });
-
-    connection.on("error", (error) => {
-      console.error("MongoDB connection error:", error);
-      process.exit(1); // Exit process on error
-    });
-  } catch (err) {
-    console.error("Error connecting to MongoDB:", err);
-    process.exit(1); // Exit process if connection fails
-  }
+if (!MONGODB_URI) {
+  throw new Error('MONGODB_URI is not defined in the environment variables');
 }
+
+export const connect = async () => {
+  try {
+    if (mongoose.connection.readyState === 1) {
+      console.log('Already connected to MongoDB');
+      return;
+    }
+    
+    await mongoose.connect(MONGODB_URI, {
+      dbName: 'your-database-name',
+    });
+
+    console.log('Connected to MongoDB');
+  } catch (error) {
+    console.error('Error connecting to MongoDB:', error);
+    process.exit(1); // Exit process with failure
+  }
+};
