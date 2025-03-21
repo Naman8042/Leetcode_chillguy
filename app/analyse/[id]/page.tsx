@@ -1,13 +1,19 @@
+"use client";
+import { useParams } from 'next/navigation';
 import Trophy from '@/assets/trophy.png';
-import Accept from '@/assets/accept.png';
-import Fire from '@/assets/fire.png';
-import Ranking from '@/assets/ranking.png';
-import Thunder from '@/assets/thunder.png';
+import Accept from '@/assets/accept.png'
+import Fire from '@/assets/fire.png'
+import Ranking from '@/assets/ranking.png'
+import Thunder from '@/assets/thunder.png'
 import Image from 'next/image';
-import Submissiongraph from '@/app/_component/Submissiongraph';
+import Submissiongraph from '@/app/_component/Submissiongraph'
 import Histogram from '@/app/_component/Histogram';
-import Chillguy from '@/assets/chill_guy.png';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
+import { toast } from 'react-hot-toast';
+import Chillguy from '@/assets/chill_guy.png'
 import { StaticImageData } from 'next/image';
+
 
 // Props type for the showIcon component
 interface IconProps {
@@ -31,6 +37,12 @@ const ShowIcon: React.FC<IconProps> = ({ imageSrc, label, value }) => (
         </div>
     </div>
 );
+
+interface SubmissionCalendar {
+    [key: string]: number; // Define the structure of the calendar data
+}
+
+
 
 const calculateLongestStreak = (submissionCalendar: Record<string, number> | null): number => {
     if (!submissionCalendar) {
@@ -67,71 +79,101 @@ const calculateLongestStreak = (submissionCalendar: Record<string, number> | nul
 };
 
 function calculateChillLevelPercentage(
-    totalSolved: number,
-    easy: number,
-    medium: number,
-    hard: number,
+    totalSolved: number, 
+    easy: number, 
+    medium: number, 
+    hard: number, 
     streak: number
-): number {
+  ): number {
+    
     // Metric 1: Total problems solved (scaled from 0 to 100%)
     const totalSolvedPercentage = Math.min((totalSolved / 500) * 100, 100); // Scale based on totalSolved
-
+  
     // Metric 2: Streak (scaled from 0 to 100%)
     const streakPercentage = Math.min((streak / 20) * 100, 100); // Scale based on streak length
-
+  
     // Metric 3: Difficulty distribution (scaled from 0 to 100%)
     const difficultyPercentage = Math.min((hard / totalSolved) * 100, 100); // How many Hard problems solved
-
+  
     // Combine all metrics (you can adjust weights based on what you value more)
     const weightedScore = (totalSolvedPercentage * 0.5) + (streakPercentage * 0.3) + (difficultyPercentage * 0.2);
-
+  
     return weightedScore; // Chill Guy level percentage
+  }
+  
+
+interface Submission {
+    title: string;
+    titleSlug: string;
+    timestamp: string;
+    statusDisplay: string;
+    lang: string;
+    __typename: string;
 }
 
-interface PageProps {
-    params: {
-        id: string;
-    };
-}
 
-
-const Page = async ({ params }: PageProps) => {
-
-    const  id  = params.id;
-
-    console.log(id)
-    // Fetch data on the server
-    const response = await fetch(`https://leetcode-api-faisalshohag.vercel.app/${id}`);
-    const data = await response.json();
-    console.log(data)
-    const totalSolved = data.totalSolved;
-    const totalSubmissions = data.totalSubmissions[0].submissions;
-    const ranking = data.ranking;
-    const submissionCalendar = data.submissionCalendar;
-    const difficultySolved = {
-        easy: data.easySolved,
-        medium: data.mediumSolved,
-        hard: data.hardSolved,
-    };
-    const contributionPoint = data.contributionPoint;
-    const recentSubmissions = data.recentSubmissions;
-
-    const longestStreak = calculateLongestStreak(submissionCalendar);
-    const chillGuyLevel = calculateChillLevelPercentage(
-        totalSolved,
-        difficultySolved.easy,
-        difficultySolved.medium,
-        difficultySolved.hard,
-        longestStreak
-    );
-
+export default function Analyse() {
+    const { id } = useParams();
+    const[Loading,setLoading] = useState<boolean>(true)
+    const [totalSolved, setTotalSolved] = useState<number>(0)
+    const [submissionCalendar, setSubmissionCalendar] = useState<SubmissionCalendar | null>(null);
+    const [totalSubmissions, setTotalSubmissions] = useState<number>(0)
+    const [ranking, setRanking] = useState<number>(0)
+    const [longestStreak, setLongestStreak] = useState<number>(0)
+    const [contributionPoint, setContributionPoint] = useState<number>(0)
+    const [difficultySolved, setDifficultySolved] = useState<{ easy: number; medium: number; hard: number }>({
+        easy: 0,
+        medium: 0,
+        hard: 0,
+    });
+    const [recentSubmissions, setRecentSubmissions] = useState<Submission[]>([]);
     const acceptedSubmissions = recentSubmissions.filter(
         (submission) => submission.statusDisplay === "Accepted"
     );
+    const[chillGuyLevel,setChillGuyLevel] = useState<number>(0)
+    useEffect(() => {
+        async function getDetails() {
+            try {
+                const {data} = await axios.get(`https://leetcode-api-faisalshohag.vercel.app/${id}`)
+                console.log(data)
+                setTotalSolved(data.totalSolved)
+                setTotalSubmissions(data.totalSubmissions[0].submissions)
+                setRanking(data.ranking)
+                setSubmissionCalendar(data.submissionCalendar)
+                setDifficultySolved({
+                    easy: data.easySolved, // Adjust based on your API response
+                    medium: data.mediumSolved, // Adjust based on your API response
+                    hard: data.hardSolved, // Adjust based on your API response
+                });
+                setContributionPoint(data.contributionPoint)
+                setRecentSubmissions(data.recentSubmissions);
+                setLoading(false)
+                
+            }
+            catch (err) {
+                console.log(err)
+                toast.error('Username not found')
+            }
+        }
+        getDetails()
+    }, [])
 
+    useEffect(() => {
+        if (submissionCalendar) {
+            const streak = calculateLongestStreak(submissionCalendar);
+            setLongestStreak(streak);
+            console.log("Longest Streak: ", streak);
+            setChillGuyLevel(calculateChillLevelPercentage(totalSolved,difficultySolved.easy,difficultySolved.medium,difficultySolved.hard,longestStreak))     
+        }
+    }, [submissionCalendar]);
+    if(Loading){
+        return(
+            <Loader/>
+        )
+    }
     return (
-        <div className='mt-4 p-4 md:p-20'>
-            <ChillGuy Username={id} chillguylevel={chillGuyLevel} />
+        <div className='bg-gray-100 min-h-screen p-4 md:px-20 mt-16'>
+            <ChillGuy Username={id} chillguylevel={chillGuyLevel}/>
             <div className="flex flex-wrap justify-center sm:justify-between w-full items-center gap-4 ">
                 <ShowIcon imageSrc={Trophy} label="Total Solved" value={totalSolved} />
                 <ShowIcon imageSrc={Accept} label="Total Submissions" value={totalSubmissions} />
@@ -147,7 +189,7 @@ const Page = async ({ params }: PageProps) => {
                 </div>
 
                 {/* Histogram Section */}
-                <div className="w-full md:w-[50%] lg:w-[40%] h-96 bg-white flex flex-col items-center justify-center rounded-md">
+                <div className="w-full md:w-[50%] lg:w-[40%] h-96 bg-white flex flex-col items-center justify-center  rounded-md">
                     <h1 className="text-lg lg:text-xl font-bold text-center mb-4">Leetcode Difficulty Distribution</h1>
                     <Histogram data={difficultySolved} />
                 </div>
@@ -155,11 +197,13 @@ const Page = async ({ params }: PageProps) => {
 
             <div className='bg-white p-2 mt-5 w-full sm:w-[59%] rounded-md'>
                 <h1 className='text-xl text-center font-bold my-4'>Recent Submissions</h1>
-                {acceptedSubmissions.map((recentSubmission, id) => (
-                    <div key={id}>
-                        <RecentSubmissions title={recentSubmission.title} timestamp={recentSubmission.timestamp} />
-                    </div>
-                ))}
+                {
+                    acceptedSubmissions && acceptedSubmissions.map((recentSubmission, id) => (
+                        <div key={id} className=''>
+                            <RecentSubmissions title={recentSubmission.title} timestamp={recentSubmission.timestamp} />
+                        </div>
+                    ))
+                }
             </div>
         </div>
     );
@@ -170,34 +214,60 @@ interface SubmissionProps {
     timestamp: string;
 }
 
-interface ChillGuyProps {
-    Username: string;
-    chillguylevel: number;
-}
+interface ChillGuyProps { 
+    Username: string | string[] | undefined;
+    chillguylevel: number; 
+  }
+  
+  function ChillGuy({ Username, chillguylevel }: ChillGuyProps) {
+    // Convert the chillguylevel to a percentage (if needed)
+    let levelAsPercentage = 0;
 
-function ChillGuy({ Username, chillguylevel }: ChillGuyProps) {
-    const levelAsPercentage = chillguylevel > 1 ? Math.floor(chillguylevel) : Math.floor(chillguylevel * 100);
-
+  if (chillguylevel > 1) {
+    // If it's a raw score (like 2755), you can directly display it or normalize
+    levelAsPercentage = Math.floor(chillguylevel); // Simply display the level without multiplication
+  } else {
+    // If it's a percentage between 0 and 1 (like 0.85), multiply by 100
+    levelAsPercentage = Math.floor(chillguylevel * 100);
+  }
     return (
-        <div className="flex flex-col justify-between items-center bg-white my-5 rounded-md p-5 border">
-            <Image alt="" src={Chillguy} className="md:w-80 md:h-80 h-72 w-72" />
-            <h1 className="text-2xl font-semibold font-mono text-gray-500 my-5">{Username}</h1>
-            <h1 className="text-2xl font-bold">Your Chill Guy Level</h1>
-            <h1 className="text-5xl md:text-6xl font-semibold font-mono my-2">{levelAsPercentage}%</h1>
-        </div>
+      <div className="flex flex-col justify-between items-center bg-white my-5 rounded-md p-5 border">
+        <Image alt="" src={Chillguy} className="md:w-80 md:h-80 h-72 w-72" />
+        <h1 className="text-2xl font-semibold font-mono text-gray-500 my-5">{Username}</h1>
+        <h1 className="text-2xl font-bold">Your Chill Guy Level</h1>
+        <h1 className="text-5xl md:text-6xl font-semibold font-mono my-2">{levelAsPercentage}%</h1>
+      </div>
     );
-}
+  }
+  
+
+  
 
 function RecentSubmissions({ title, timestamp }: SubmissionProps) {
     const date = new Date(Number(timestamp) * 1000);  // Convert to date
     const formattedDate = date.toLocaleDateString();  // Format the date
 
     return (
-        <div className="flex flex-col sm:flex-row sm:justify-between bg-gray-50 p-2 py-4 rounded-md gap-2 my-2 text-center sm:text-left">
+        <div className="flex flex-col sm:flex-row sm:justify-between bg-gray-50 p-2 py-4 rounded-md  gap-2 my-2 text-center sm:text-left">
             <div className="font-medium text-sm sm:text-base">{title}</div>
             <div className="text-gray-600 text-sm sm:text-base">{formattedDate}</div>
         </div>
-    );
+
+    )
 }
 
-export default Page
+function Loader() {
+    return (
+
+        <div className='flex items-center justify-center min-h-screen'>
+            <div role="status">
+            <svg aria-hidden="true" className="w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor" />
+                <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill" />
+            </svg>
+            <span className="sr-only">Loading...</span>
+        </div>
+        </div>
+
+    )
+}
