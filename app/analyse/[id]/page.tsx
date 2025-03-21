@@ -96,7 +96,8 @@ interface PageProps {
 
 
 const Page = async ({ params }: PageProps) => {
-    const { id } =  params;
+    const { id } = await params;
+    console.log(id)
     // Fetch data on the server
     const response = await fetch(`https://leetcode-api-faisalshohag.vercel.app/${id}`);
     const data = await response.json();
