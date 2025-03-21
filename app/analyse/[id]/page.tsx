@@ -88,9 +88,14 @@ function calculateChillLevelPercentage(
     return weightedScore; // Chill Guy level percentage
 }
 
+interface PageProps {
+    params: {
+        id: string;
+    };
+}
 
 
-export default async function Analyse({ params }: { params: { id: string } }) {
+export default async function Analyse({ params }:PageProps) {
     const { id } =  params;
     // Fetch data on the server
     const response = await fetch(`https://leetcode-api-faisalshohag.vercel.app/${id}`);
