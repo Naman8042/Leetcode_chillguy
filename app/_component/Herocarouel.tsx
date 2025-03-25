@@ -1,15 +1,15 @@
 "use client";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, Navigation, Pagination } from "swiper/modules";
+import { Autoplay } from "swiper/modules";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
+import Code from '@/assets/Code.avif';
 
 const HeroCarousel = () => {
   return (
-    <section className="flex justify-center items-center min-h-[78.5vh] px-4 sm:px-6">
-      <div className="max-w-7xl w-full flex flex-col-reverse md:flex-row items-center gap-8 text-center md:text-left">
+    <section className="flex justify-center items-center h-auto min-h-screen px-4 sm:px-6">
+      <div className="max-w-7xl w-full flex flex-col-reverse md:flex-row items-center gap-6 md:gap-10 text-center md:text-left">
         
         {/* Left Content */}
         <div className="w-full md:w-1/2">
@@ -29,26 +29,25 @@ const HeroCarousel = () => {
         </div>
 
         {/* Right Content (Swiper) */}
-        <div className="w-full md:w-1/2">
+        <div className="w-full md:w-1/2 flex justify-center">
           <Swiper
-            modules={[Autoplay, Navigation, Pagination]}
-            spaceBetween={20}
+            modules={[Autoplay]}
+            spaceBetween={10}
             slidesPerView={1}
             loop={true}
             autoplay={{ delay: 3000 }}
-            navigation
-            pagination={{ clickable: true }}
-            className="rounded-xl overflow-hidden"
+            className="rounded-xl overflow-hidden w-full max-w-lg"
           >
-            {["code-snippet.png", "recursion-tree.png", "leetcode-analysis.png"].map((img, index) => (
-              <SwiperSlide key={index}>
-                <img 
-                  src={`/images/${img}`} 
-                  alt={`Feature ${index + 1}`} 
-                  className="w-full h-auto object-cover rounded-xl shadow-lg"
-                />
-              </SwiperSlide>
-            ))}
+            <SwiperSlide>
+              <Image 
+                src={Code} 
+                alt="Feature Image"
+                layout="responsive"
+                width={500}
+                height={400}  // Increased height
+                className="rounded-xl shadow-lg object-cover bg-gray-50 h-[350px] sm:h-[400px] md:h-[500px]"
+              />
+            </SwiperSlide>
           </Swiper>
         </div>
 

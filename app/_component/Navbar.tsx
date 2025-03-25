@@ -10,7 +10,7 @@ import { useSession, signOut } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const routes = {
-  "Code Snippet":"/codesnippet",
+  "Code Snippet": "/codesnippet",
   "Compare": "/compare",
   "Recursion Tree": "/code",
   "Execution Flow": "/execution",
@@ -22,10 +22,10 @@ const Navbar = () => {
   const { status } = useSession();
 
   return (
-    <nav className="p-5 shadow-md z-50 flex justify-between items-center h-16 px-5 md:px-10 fixed top-0 bg-white w-screen mx-auto">
+    <nav className="p-5 shadow-md z-50 flex justify-between items-center h-16 px-5 md:px-10 fixed top-0 bg-white w-full">
       {/* Logo */}
       <div
-        className="flex items-center cursor-pointer sm:w-[30%] md:w-1/3"
+        className="flex items-center cursor-pointer"
         onClick={() => router.push(`/`)}
       >
         <Image src={Navbar_logo} alt="Logo" width={40} height={40} />
@@ -35,19 +35,22 @@ const Navbar = () => {
       </div>
 
       {/* Desktop Menu */}
-      {Object.entries(routes).map(([name, path]) => (
-        <div
-          key={path}
-          onClick={() => router.push(path)}
-          className="cursor-pointer relative group transition-all font-semibold"
-        >
-          {name}
-          <div className="absolute left-0 bottom-0 w-0 h-0.5 bg-black transition-all duration-300 group-hover:w-full"></div>
-        </div>
-      ))}
+      <div className="hidden sm:flex space-x-6 font-semibold">
+        {Object.entries(routes).map(([name, path]) => (
+          <div
+            key={path}
+            onClick={() => router.push(path)}
+            className="cursor-pointer relative group transition-all"
+          >
+            {name}
+            <div className="absolute left-0 bottom-0 w-0 h-0.5 bg-black transition-all duration-300 group-hover:w-full"></div>
+          </div>
+        ))}
+      </div>
 
       {/* Buttons & Mobile Menu Toggle */}
-      <div className="sm:w-[30%] md:w-1/3 flex justify-end gap-3">
+      <div className="flex items-center gap-3">
+        {/* Desktop Buttons */}
         <div className="hidden sm:flex gap-2">
           {status !== "authenticated" ? (
             <>
@@ -74,37 +77,49 @@ const Navbar = () => {
             exit={{ opacity: 0, y: -20 }}
             className="absolute top-16 left-0 w-full bg-white shadow-md flex flex-col items-center p-5 sm:hidden"
           >
-            {["Analyse", "Compare", "Recursion Tree", "Execution Flow"].map(
-              (item, index) => (
-                <div
-                  key={index}
-                  onClick={() => {
-                    router.push(`/${item.toLowerCase().replace(" ", "")}`);
-                    setMenuOpen(false);
-                  }}
-                  className="cursor-pointer py-2 text-lg font-medium transition-all hover:text-blue-600"
-                >
-                  {item}
-                </div>
-              )
-            )}
-
-            <div className="w-full flex flex-col gap-3 mt-3">
-              <Button
+            {Object.entries(routes).map(([name, path]) => (
+              <div
+                key={path}
                 onClick={() => {
-                  router.push(`/login`);
+                  router.push(path);
                   setMenuOpen(false);
                 }}
+                className="cursor-pointer py-2 text-lg font-medium transition-all hover:text-blue-600"
               >
-                Login
-              </Button>
-              <Button
-                onClick={() => {
-                  signOut();
-                }}
-              >
-                Sign Up
-              </Button>
+                {name}
+              </div>
+            ))}
+
+            <div className="w-full flex flex-col gap-3 mt-3">
+              {status !== "authenticated" ? (
+                <>
+                  <Button
+                    onClick={() => {
+                      router.push(`/login`);
+                      setMenuOpen(false);
+                    }}
+                  >
+                    Login
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      router.push(`/signup`);
+                      setMenuOpen(false);
+                    }}
+                  >
+                    Sign Up
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  onClick={() => {
+                    signOut();
+                    setMenuOpen(false);
+                  }}
+                >
+                  Logout
+                </Button>
+              )}
             </div>
           </motion.div>
         )}

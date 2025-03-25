@@ -12,7 +12,7 @@ import HeroCarousel from "./_component/Herocarouel";
 export default function Home() {
   
   return (
-    <div className="mt-16 bg-gray-50">
+    <div className="mt-16 ">
       <HeroCarousel />
       <Grid/>
     </div>
