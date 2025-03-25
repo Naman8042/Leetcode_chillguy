@@ -12,6 +12,7 @@ export async function POST(request:NextRequest) {
         
         if(!reqBody){
             return NextResponse.json({
+                success:false,
                 message:"req Body not found"
             })
         }
@@ -21,6 +22,7 @@ export async function POST(request:NextRequest) {
         const user = await User.findOne({email:email})
         if(user){
             return NextResponse.json({
+                success:false,
                 message:"User already exits"
             }
             )

@@ -31,14 +31,17 @@ export default function Sidebar() {
   const router = useRouter();
 
   useEffect(() => {
-    fetchFolders();
-  }, []);
+    if (status === "authenticated") {
+      fetchFolders();
+    }
+  }, [status]);
+  
 
   const fetchFolders = () => {
-    if (status === "authenticated") {
-      axios.get("/api/codesnippet").then((res) => setFolders(res.data.folders));
-    }
+    if (status !== "authenticated") return; // Prevents API calls when not logged in
+    axios.get("/api/codesnippet").then((res) => setFolders(res.data.folders));
   };
+  
 
   const handleCreateFolder = async () => {
     if (!folderName) return;
@@ -84,14 +87,14 @@ export default function Sidebar() {
     // </div>
     <div className="flex">
       {/* Sidebar for larger screens */}
-      <div className="hidden md:block w-1/4 bg-gray-100 p-4 border-r h-screen fixed left-0">
+      <div className="hidden md:block w-1/4 bg-gray-50 p-4 border-r h-screen fixed left-0">
         <h2 className="text-lg font-bold mb-4">Folders</h2>
 
         {/* Folder List */}
         {folders.map((folder) => (
           <div
             key={folder._id}
-            className="cursor-pointer p-2 rounded-md mb-2 bg-gray-200 hover:bg-blue-500 hover:text-white transition"
+            className="cursor-pointer p-2 rounded-md mb-2 bg-gray-200 hover:bg-black hover:text-white transition"
             onClick={() => router.push(`/codesnippet/${folder._id}`)}
           >
             {folder.name}
@@ -155,7 +158,7 @@ export default function Sidebar() {
           {folders.map((folder) => (
             <div
               key={folder._id}
-              className="cursor-pointer p-2 rounded-md mb-2 bg-gray-200 hover:bg-blue-500 hover:text-white transition"
+              className="cursor-pointer p-2 rounded-md mb-2 bg-gray-200 hover:bg-black hover:text-white transition"
               onClick={() => router.push(`/codesnippet/${folder._id}`)}
             >
               {folder.name}

@@ -2,8 +2,10 @@
 import { useState } from "react";
 import { SigninForm } from "@/components/signup-form";
 import axios from "axios";
-
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 const Page = () => {
+  const router = useRouter()
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [userName, setUsername] = useState<string>("");
@@ -11,7 +13,16 @@ const Page = () => {
   const signinHandler = async (e: React.FormEvent) => {
     e.preventDefault(); // Prevent form default submission behavior
       try{
-        await axios.post("/api/users/signup",{email,password,userName})
+        const {data}= await axios.post("/api/users/signup",{email,password,userName})
+        
+        if(data.success===true){
+          toast.success(data.message)
+          router.push("/login")
+        }
+        else{
+          toast.error(data.message)
+        }
+        
       }
       catch(err){
         console.log(err)

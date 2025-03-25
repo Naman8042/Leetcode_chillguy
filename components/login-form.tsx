@@ -47,14 +47,14 @@ export function LoginForm({ setEmail, setPassword, loginHandler }: LoginProps) {
                     Forgot your password?
                   </a>
                 </div>
-                <Input id="password" type="password" required onChange={(e) => setPassword(e.target.value)} />
+                <Input id="password" type="password" placeholder="password" required onChange={(e) => setPassword(e.target.value)} />
               </div>
               <Button type="submit" className="w-full">
                 Login
               </Button>
             </div>
             <div className="mt-4 text-center text-sm">
-              Don&apos;t have an account? <a href="#" className="underline underline-offset-4">Sign up</a>
+              Don&apos;t have an account? <a href="/signup" className=" underline-offset-4">Sign up</a>
             </div>
           </form>
         </CardContent>
