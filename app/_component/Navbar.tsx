@@ -51,7 +51,7 @@ const Navbar = () => {
       {/* Buttons & Mobile Menu Toggle */}
       <div className="flex items-center gap-3">
         {/* Desktop Buttons */}
-        <div className="hidden sm:flex gap-2">
+        <div className="hidden sm:flex gap-2 w-40 justify-end">
           {status !== "authenticated" ? (
             <>
               <Button onClick={() => router.push(`/login`)}>Login</Button>

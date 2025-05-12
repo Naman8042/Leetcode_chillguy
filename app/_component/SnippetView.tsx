@@ -1,6 +1,13 @@
 import { useState, useEffect } from "react";
+import ShareToggle from "./Sharetoggle";
 import axios from "axios";
-import { Dialog, DialogTrigger, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import toast from "react-hot-toast";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -18,26 +25,44 @@ interface SnippetViewProps {
 
 function SnippetView({ folderId }: SnippetViewProps) {
   const [snippets, setSnippets] = useState<Snippet[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const [open, setOpen] = useState(false);
   const [newSnippet, setNewSnippet] = useState({
     title: "",
     description: "",
     code: "",
-    language: ""
+    language: "",
   });
 
-  useEffect(() => {
-    if (!folderId) return;
-    setLoading(true);
-    axios.get(`/api/folder?folderId=${folderId}`).then((res) => {
+
+
+useEffect(() => {
+  if (!folderId) return;
+
+  const fetchSnippets = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get(`/api/folder?folderId=${folderId}`);
       setSnippets(res.data.snippets);
+    } catch (error: any) {
+      console.log("Error fetching snippets:", error);
+      toast.error(error.response?.data?.error || "Failed to fetch snippets");
+    } finally {
       setLoading(false);
-    });
-  }, [folderId]);
+    }
+  };
+
+  fetchSnippets();
+}, [folderId]);
+
 
   const handleAddSnippet = async () => {
-    if (!folderId || !newSnippet.title || !newSnippet.code || !newSnippet.language) {
+    if (
+      !folderId ||
+      !newSnippet.title ||
+      !newSnippet.code ||
+      !newSnippet.language
+    ) {
       alert("Please fill in all required fields");
       return;
     }
@@ -45,7 +70,7 @@ function SnippetView({ folderId }: SnippetViewProps) {
     try {
       const res = await axios.post("/api/folder", {
         folderId,
-        ...newSnippet
+        ...newSnippet,
       });
       setSnippets([...snippets, res.data.newSnippet]);
       setNewSnippet({ title: "", description: "", code: "", language: "" });
@@ -62,6 +87,9 @@ function SnippetView({ folderId }: SnippetViewProps) {
 
   return (
     <div className="p-4 w-full max-w-4xl mx-auto">
+      
+      <ShareToggle folderId={folderId}/>
+
       {/* Add Snippet Button */}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
@@ -74,26 +102,34 @@ function SnippetView({ folderId }: SnippetViewProps) {
           <Input
             placeholder="Title"
             value={newSnippet.title}
-            onChange={(e) => setNewSnippet({ ...newSnippet, title: e.target.value })}
+            onChange={(e) =>
+              setNewSnippet({ ...newSnippet, title: e.target.value })
+            }
             className="mt-2 w-full"
           />
           <Input
             placeholder="Description"
             value={newSnippet.description}
-            onChange={(e) => setNewSnippet({ ...newSnippet, description: e.target.value })}
+            onChange={(e) =>
+              setNewSnippet({ ...newSnippet, description: e.target.value })
+            }
             className="mt-2 w-full"
           />
           <Input
             placeholder="Language"
             value={newSnippet.language}
-            onChange={(e) => setNewSnippet({ ...newSnippet, language: e.target.value })}
+            onChange={(e) =>
+              setNewSnippet({ ...newSnippet, language: e.target.value })
+            }
             className="mt-2 w-full"
           />
           <textarea
             placeholder="Code"
             className="border p-2 rounded w-full mt-2 resize-none h-40"
             value={newSnippet.code}
-            onChange={(e) => setNewSnippet({ ...newSnippet, code: e.target.value })}
+            onChange={(e) =>
+              setNewSnippet({ ...newSnippet, code: e.target.value })
+            }
           ></textarea>
           <Button className="mt-4 w-full" onClick={handleAddSnippet}>
             Add Snippet
@@ -106,7 +142,10 @@ function SnippetView({ folderId }: SnippetViewProps) {
         <p className="text-center">Loading snippets...</p>
       ) : snippets.length > 0 ? (
         snippets.map((snippet) => (
-          <div key={snippet._id} className="p-4 border rounded-md mb-3 relative bg-white shadow-md">
+          <div
+            key={snippet._id}
+            className="p-4 border rounded-md mb-3 relative bg-white shadow-md"
+          >
             <h3 className="text-lg font-semibold">{snippet.title}</h3>
             <p className="text-gray-600">{snippet.description}</p>
             <div className="bg-gray-100 p-3 rounded-md overflow-x-auto relative">
@@ -123,7 +162,9 @@ function SnippetView({ folderId }: SnippetViewProps) {
           </div>
         ))
       ) : (
-        <p className="text-center text-gray-500">No snippets available in this folder.</p>
+        <p className="text-center text-gray-500">
+          No snippets available in this folder.
+        </p>
       )}
     </div>
   );

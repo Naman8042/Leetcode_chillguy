@@ -14,6 +14,10 @@ const folderSchema = new mongoose.Schema({
   name: { type: String, required: true },
   snippets: [snippetSchema], // Use the schema after defining it
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  shared: {
+    type: Boolean,
+    default: false, // snippets are not shared by default
+  },
 });
 
 // Create Models

@@ -6,6 +6,10 @@ const snippetSchema = new mongoose.Schema({
   code: String,
   language: String,
   tags: [String],
+  shared: {
+    type: Boolean,
+    default: false, // snippets are not shared by default
+  },
 });
 
 export const Snippet =

@@ -1,7 +1,7 @@
 import { Folder } from "@/models/folder";
 import { connect } from "@/dbConfig/dbConfig";
 import { NextRequest,NextResponse } from "next/server";
-import { getServerSession } from 'next-auth';
+import { getServerSession } from "next-auth";
 import { option } from "../auth/[...nextauth]/option";
 
 export  async function POST(req: NextRequest) {
@@ -41,31 +41,35 @@ export  async function POST(req: NextRequest) {
     }  
 }
 
+
 export async function GET(req: NextRequest) {
   await connect();
+
   try {
     const session = await getServerSession(option);
-
-    if (!session || !session?.user) {
-      return NextResponse.json({}, { status: 401 });
-    }
-
     const { searchParams } = new URL(req.url);
     const folderId = searchParams.get("folderId");
 
     if (!folderId) {
-      return NextResponse.json({ error: "Folder ID is required" }, { status: 400 });
+      return NextResponse.json({ error: "Valid Folder ID is required" }, { status: 400 });
     }
-    
-    const folder = await Folder.findOne({ _id: folderId, userId: session.user.id }).select("snippets");
-    
+
+    const folder = await Folder.findById(folderId).select("snippets shared userId");
+
     if (!folder) {
       return NextResponse.json({ error: "Folder not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ snippets: folder.snippets });
+    const isOwner = session?.user?.id === folder.userId.toString();
+
+    if (!isOwner && !folder.shared) {
+      return NextResponse.json({ error: "This folder is private and cannot be accessed" }, { status: 403 });
+    }
+
+    return NextResponse.json({ snippets: folder.snippets ,shared:folder.shared});
+
   } catch (err) {
-    console.log(err);
+    console.error("Error fetching snippets:", err);
     return NextResponse.json({ error: "Failed to fetch snippets" }, { status: 500 });
   }
 }

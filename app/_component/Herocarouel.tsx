@@ -8,7 +8,7 @@ import Code from '@/assets/Code.avif';
 
 const HeroCarousel = () => {
   return (
-    <section className="flex justify-center items-center h-auto min-h-screen px-4 sm:px-6">
+    <section className="flex justify-center items-center h-auto min-h-[91vh] px-4 sm:px-6 ">
       <div className="max-w-7xl w-full flex flex-col-reverse md:flex-row items-center gap-6 md:gap-10 text-center md:text-left">
         
         {/* Left Content */}
@@ -23,20 +23,20 @@ const HeroCarousel = () => {
             Enhance your coding experience with tools for saving snippets, executing code, and analyzing LeetCode profiles effortlessly.
           </p>
           <div className="mt-6 flex flex-col sm:flex-row gap-4">
-            <Button className="w-full sm:w-auto">Start Coding →</Button>
-            <Button variant="outline" className="w-full sm:w-auto">Explore Features →</Button>
+            <Button className="w-full sm:w-1/3">Start Coding →</Button>
+            <Button variant="outline" className="w-full sm:w-1/3">Explore Features →</Button>
           </div>
         </div>
 
         {/* Right Content (Swiper) */}
-        <div className="w-full md:w-1/2 flex justify-center">
+        <div className="w-full md:w-1/2 flex justify-center ">
           <Swiper
             modules={[Autoplay]}
             spaceBetween={10}
             slidesPerView={1}
             loop={true}
             autoplay={{ delay: 3000 }}
-            className="rounded-xl overflow-hidden w-full max-w-lg"
+            className="rounded-xl overflow-hidden w-full max-w-xl max-h-max "
           >
             <SwiperSlide>
               <Image 
@@ -44,8 +44,8 @@ const HeroCarousel = () => {
                 alt="Feature Image"
                 layout="responsive"
                 width={500}
-                height={400}  // Increased height
-                className="rounded-xl shadow-lg object-cover bg-gray-50 h-[350px] sm:h-[400px] md:h-[500px]"
+                height={500}
+                className="rounded-xl "
               />
             </SwiperSlide>
           </Swiper>
