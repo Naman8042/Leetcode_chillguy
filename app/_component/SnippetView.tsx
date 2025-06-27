@@ -34,27 +34,31 @@ function SnippetView({ folderId }: SnippetViewProps) {
     language: "",
   });
 
+  useEffect(() => {
+    if (!folderId) return;
 
+    const fetchSnippets = async () => {
+      try {
+        setLoading(true);
+        const res = await axios.get(`/api/folder?folderId=${folderId}`);
+        setSnippets(res.data.snippets);
+      } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+          console.log("Error fetching snippets:", error);
+          toast.error(
+            error.response?.data?.error || "Failed to fetch snippets"
+          );
+        } else {
+          console.error("Unexpected error:", error);
+          toast.error("An unexpected error occurred");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
 
-useEffect(() => {
-  if (!folderId) return;
-
-  const fetchSnippets = async () => {
-    try {
-      setLoading(true);
-      const res = await axios.get(`/api/folder?folderId=${folderId}`);
-      setSnippets(res.data.snippets);
-    } catch (error: any) {
-      console.log("Error fetching snippets:", error);
-      toast.error(error.response?.data?.error || "Failed to fetch snippets");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  fetchSnippets();
-}, [folderId]);
-
+    fetchSnippets();
+  }, [folderId]);
 
   const handleAddSnippet = async () => {
     if (
@@ -87,8 +91,7 @@ useEffect(() => {
 
   return (
     <div className="p-4 w-full max-w-4xl mx-auto overflow-y-auto">
-      
-      <ShareToggle folderId={folderId}/>
+      <ShareToggle folderId={folderId} />
 
       {/* Add Snippet Button */}
       <Dialog open={open} onOpenChange={setOpen}>

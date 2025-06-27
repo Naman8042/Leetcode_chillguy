@@ -23,11 +23,16 @@ const Education = ({ educationList, setEducationList }: EducationInterface) => {
     ]);
   };
 
-  const updateEducation = (index: number, field: string, value: string) => {
-    const updated = [...educationList];
-    updated[index][field] = value;
-    setEducationList(updated);
-  };
+  const updateEducation = <K extends keyof EducationEntry>(
+  index: number,
+  field: K,
+  value: EducationEntry[K]
+) => {
+  const updated = [...educationList];
+  updated[index][field] = value;
+  setEducationList(updated);
+};
+
 
   const removeEducation = (index: number) => {
     const updated = [...educationList];

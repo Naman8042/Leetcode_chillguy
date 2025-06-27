@@ -36,11 +36,16 @@ const Employement = ({
     ]);
   };
 
-  const updateEmployment = (index: number, field: string, value: string) => {
-    const updated = [...employmentHistory];
-    updated[index][field] = value;
-    onEmploymentChange(updated);
-  };
+ const updateEmployment = <K extends keyof EmploymentEntry>(
+  index: number,
+  field: K,
+  value: EmploymentEntry[K]
+) => {
+  const updated = [...employmentHistory];
+  updated[index][field] = value;
+  onEmploymentChange(updated);
+};
+
 
   const removeEmployment = (index: number) => {
     const updated = [...employmentHistory];

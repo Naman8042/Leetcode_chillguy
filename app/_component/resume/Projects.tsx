@@ -38,15 +38,16 @@ const techStacks = [
 ];
 
 const Projects = ({ projectHistory, setProjectHistory }: ProjectInterface) => {
-  const updateProject = (
-    index: number,
-    field: keyof ProjectEntry,
-    value: any
-  ) => {
-    const updated = [...projectHistory];
-    updated[index][field] = value;
-    setProjectHistory(updated);
-  };
+  const updateProject = <K extends keyof ProjectEntry>(
+  index: number,
+  field: K,
+  value: ProjectEntry[K]
+) => {
+  const updated = [...projectHistory];
+  updated[index][field] = value;
+  setProjectHistory(updated);
+};
+
 
   const toggleStack = (projectIndex: number, tech: string) => {
     const current = projectHistory[projectIndex].stack || [];
