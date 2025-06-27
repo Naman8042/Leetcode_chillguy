@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Navbar from "./_component/Navbar";
 import { Toaster } from "react-hot-toast";
 import { Providers } from "./providers";
+import 'quill/dist/quill.snow.css';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,7 +32,6 @@ export default function RootLayout({
       >
         <Providers>
         <Toaster position="top-center" />
-        <Navbar/>
         {children}
         </Providers>
       </body>

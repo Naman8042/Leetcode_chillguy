@@ -86,7 +86,7 @@ useEffect(() => {
   };
 
   return (
-    <div className="p-4 w-full max-w-4xl mx-auto">
+    <div className="p-4 w-full max-w-4xl mx-auto overflow-y-auto">
       
       <ShareToggle folderId={folderId}/>
 
