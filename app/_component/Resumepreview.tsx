@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import {
   EmploymentEntry,
   EducationEntry,
@@ -49,14 +50,14 @@ const ResumePreview = ({
           {formData.email && `${formData.email} ⋅ `}
           {formData.linkedId && (
             <>
-              <a
+              <Link
                 href={formData.linkedId}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-600 hover:underline"
               >
                 LinkedIn
-              </a>{" "}
+              </Link>{" "}
               ⋅{" "}
             </>
           )}

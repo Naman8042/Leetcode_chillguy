@@ -1,6 +1,7 @@
 "use client";
 
 import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedin } from "react-icons/fa";
+import Link from "next/link";
 
 const Footer = () => {
   return (
@@ -41,11 +42,11 @@ const Footer = () => {
           <div>
             <h4 className="text-lg font-semibold">Features</h4>
             <ul className="mt-4 space-y-2">
-              <li><a href="/resume" className="text-gray-400 hover:text-white">Resume Builder</a></li>
-              <li><a href="/codesnippet" className="text-gray-400 hover:text-white">Code Snippet Saver</a></li>
-              <li><a href="/code" className="text-gray-400 hover:text-white">Recursion Tree Visualizer</a></li>
-              <li><a href="/compare" className="text-gray-400 hover:text-white">Compare</a></li>
-              <li><a href="/execution" className="text-gray-400 hover:text-white">Execution Flow</a></li>
+              <li><Link href="/resume" className="text-gray-400 hover:text-white">Resume Builder</Link></li>
+              <li><Link href="/codesnippet" className="text-gray-400 hover:text-white">Code Snippet Saver</Link></li>
+              <li><Link href="/code" className="text-gray-400 hover:text-white">Recursion Tree Visualizer</Link></li>
+              <li><Link href="/compare" className="text-gray-400 hover:text-white">Compare</Link></li>
+              <li><Link href="/execution" className="text-gray-400 hover:text-white">Execution Flow</Link></li>
             </ul>
           </div>
 

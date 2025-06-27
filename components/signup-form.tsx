@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import {
   Card,
   CardContent,
@@ -69,9 +70,9 @@ export function SigninForm({
             </div>
             <div className="mt-4 text-center text-sm">
               Don&apos;t have an account?{" "}
-              <a href="/login" className=" underline-offset-4">
+              <Link href="/login" className=" underline-offset-4">
                 Login
-              </a>
+              </Link>
             </div>
           </form>
         </CardContent>

@@ -10,6 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Dispatch, SetStateAction } from "react";
+import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -43,9 +44,9 @@ export function LoginForm({ setEmail, setPassword, loginHandler }: LoginProps) {
               <div className="grid gap-2">
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
-                  <a href="#" className="ml-auto inline-block text-sm underline-offset-4 hover:underline">
+                  <Link href="#" className="ml-auto inline-block text-sm underline-offset-4 hover:underline">
                     Forgot your password?
-                  </a>
+                  </Link>
                 </div>
                 <Input id="password" type="password" placeholder="password" required onChange={(e) => setPassword(e.target.value)} />
               </div>
@@ -54,7 +55,7 @@ export function LoginForm({ setEmail, setPassword, loginHandler }: LoginProps) {
               </Button>
             </div>
             <div className="mt-4 text-center text-sm">
-              Don&apos;t have an account? <a href="/signup" className=" underline-offset-4">Sign up</a>
+              Don&apos;t have an account? <Link href="/signup" className=" underline-offset-4">Sign up</Link>
             </div>
           </form>
         </CardContent>
