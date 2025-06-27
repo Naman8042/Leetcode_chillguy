@@ -5,7 +5,7 @@ import { useState } from "react";
 import { EmploymentEntry, EducationEntry ,SkillGroup ,ProjectEntry ,FormState} from "@/app/_component/types";
 
 
-const page = () => {
+const Page = () => {
   const [input, setInput] = useState<FormState>({
     firstName: "",
     lastName: "",
@@ -76,4 +76,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;
