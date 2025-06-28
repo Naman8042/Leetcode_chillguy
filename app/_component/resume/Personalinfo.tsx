@@ -16,8 +16,8 @@ const Personalinfo = ({ formData, onFormChange }: PersonalInfoInterface) => {
   };
 
   return (
-    <div className="mx-auto w-full  border border-gray-200 bg-white p-6 rounded-lg h-auto">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">
+    <div className="w-full border border-gray-200 bg-white p-6 rounded-lg shadow-sm">
+      <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-6">
         Personal Details
       </h2>
 
@@ -30,7 +30,6 @@ const Personalinfo = ({ formData, onFormChange }: PersonalInfoInterface) => {
           onChange={(e) => handleChange("firstName", e.target.value)}
           className="h-11"
         />
-
         <Input
           type="text"
           label="Last Name"
@@ -39,64 +38,41 @@ const Personalinfo = ({ formData, onFormChange }: PersonalInfoInterface) => {
           onChange={(e) => handleChange("lastName", e.target.value)}
           className="h-11"
         />
-
-       
-          <Input
-            type="email"
-            label="Email"
-            placeholder="Enter your email"
-            value={formData.email}
-            onChange={(e) => handleChange("email", e.target.value)}
-            className="h-11"
-          />
-        
-        
-          <Input
-            type="tel"
-            label="Phone Number"
-            placeholder="Enter your phone number"
-            value={formData.phoneNumber}
-            onChange={(e) => handleChange("phoneNumber", e.target.value)}
-            className="h-11"
-          />
-       
-
-                  <Input
-            type="text"
-            label="LinkedIn"
-            placeholder="LinkedIn URL"
-            value={formData.linkedId}
-            onChange={(e) => handleChange("linkedId", e.target.value)}
-            className="h-11"
-          />
-
-        
-          <Input
-            type="text"
-            label="GitHub"
-            placeholder="GitHub URL"
-            value={formData.githubId}
-            onChange={(e) => handleChange("githubId", e.target.value)}
-            className="h-11"
-          />
-        
-
-        {/* <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            LeetCode ID
-          </label>
-          <Input type="text" placeholder="Leetcode ID" className="h-11" />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Portfolio
-          </label>
-          <Input
-            type="text"
-            placeholder="Your website or portfolio"
-            className="h-11"
-          />
-        </div> */}
+        <Input
+          type="email"
+          label="Email"
+          placeholder="Enter your email"
+          value={formData.email}
+          onChange={(e) => handleChange("email", e.target.value)}
+          className="h-11"
+        />
+        <Input
+          type="tel"
+          label="Phone Number"
+          placeholder="Enter your phone number"
+          value={formData.phoneNumber}
+          onChange={(e) => handleChange("phoneNumber", e.target.value)}
+          className="h-11"
+        />
+        <Input
+          type="text"
+          label="LinkedIn"
+          placeholder="LinkedIn URL"
+          value={formData.linkedId}
+          onChange={(e) => handleChange("linkedId", e.target.value)}
+          className="h-11"
+        />
+        <Input
+          type="text"
+          label="GitHub"
+          placeholder="GitHub URL"
+          value={formData.githubId}
+          onChange={(e) => handleChange("githubId", e.target.value)}
+          className="h-11"
+        />
+        {/* Optional Fields */}
+        {/* <Input type="text" label="LeetCode" placeholder="LeetCode ID" className="h-11" />
+        <Input type="text" label="Portfolio" placeholder="Portfolio/Website" className="h-11" /> */}
       </div>
     </div>
   );

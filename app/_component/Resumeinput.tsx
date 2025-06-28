@@ -163,45 +163,52 @@ const ResumeInput = ({
   };
 
   return (
-    <div className="w-[75%] pt-4 flex flex-col justify-between">
-      <div className="flex justify-end items-center mb-4 ">
-        <select
-          value={sectionIndex}
-          onChange={(e) => setSectionIndex(Number(e.target.value))}
-          className="p-2 bg-gray-100 rounded outline-none"
-        >
-          {sections.map((section, i) => (
-            <option key={section} value={i}>
-              {section}
-            </option>
-          ))}
-        </select>
-      </div>
+    <div className="w-full  pt-4 flex flex-col justify-between h-full">
+  {/* Section Selector */}
+  <div className="flex justify-end items-center mb-4">
+    <select
+      value={sectionIndex}
+      onChange={(e) => setSectionIndex(Number(e.target.value))}
+      className="p-2 bg-gray-100 rounded outline-none border border-gray-300 text-sm"
+    >
+      {sections.map((section, i) => (
+        <option key={section} value={i}>
+          {section}
+        </option>
+      ))}
+    </select>
+  </div>
 
-      {renderSection()}
+  {/* Form Section Renderer */}
+  <div className="flex-1 overflow-auto">
+    {renderSection()}
+  </div>
 
-      <div className="flex justify-between items-center h-[7vh]">
-        <Button
-          onClick={handleBack}
-          disabled={sectionIndex === 0}
-          variant="default"
-        >
-          Back
-        </Button>
-        {sectionIndex === sections.length - 1 ? (
-          <Button
-            onClick={async () => {
-              await handleNext(); 
-              router.push("/resume/preview"); 
-            }}
-          >
-            Continue
-          </Button>
-        ) : (
-          <Button onClick={handleNext}>Next</Button>
-        )}
-      </div>
-    </div>
+  {/* Navigation Buttons */}
+  <div className="flex justify-between items-center mt-4">
+    <Button
+      onClick={handleBack}
+      disabled={sectionIndex === 0}
+      variant="default"
+    >
+      Back
+    </Button>
+
+    {sectionIndex === sections.length - 1 ? (
+      <Button
+        onClick={async () => {
+          await handleNext();
+          router.push("/resume/preview");
+        }}
+      >
+        Continue
+      </Button>
+    ) : (
+      <Button onClick={handleNext}>Next</Button>
+    )}
+  </div>
+</div>
+
   );
 };
 
