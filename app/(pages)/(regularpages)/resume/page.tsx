@@ -1,7 +1,7 @@
 "use client";
 import Resumeinput from "@/app/_component/Resumeinput";
 import ResumePreview from "@/app/_component/Resumepreview";
-import { useState ,useEffect} from "react";
+import { useState} from "react";
 import {
   EmploymentEntry,
   EducationEntry,
