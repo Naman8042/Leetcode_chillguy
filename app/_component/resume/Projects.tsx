@@ -71,7 +71,7 @@ const Projects = ({ projectHistory, setProjectHistory }: ProjectInterface) => {
   };
 
   return (
-    <div className="overflow-y-auto h-[74vh]">
+    <div className=" h-[72vh]">
       {projectHistory.map((project, index) => (
         <div key={index} className="my-3 border-b p-4 border rounded-lg">
           <div className="flex justify-end">
@@ -146,7 +146,7 @@ const Projects = ({ projectHistory, setProjectHistory }: ProjectInterface) => {
         </div>
       ))}
 
-      <Button onClick={addProject} className="mt-4">
+      <Button onClick={addProject} className="mt-3">
         + Add One More Project
       </Button>
     </div>

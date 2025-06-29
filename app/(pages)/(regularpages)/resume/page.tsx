@@ -1,7 +1,7 @@
 "use client";
 import Resumeinput from "@/app/_component/Resumeinput";
 import ResumePreview from "@/app/_component/Resumepreview";
-import { useState} from "react";
+import { useState, useEffect } from "react";
 import {
   EmploymentEntry,
   EducationEntry,
@@ -10,7 +10,7 @@ import {
   FormState,
 } from "@/app/_component/types";
 import { redirect } from "next/navigation";
-import { useSession } from "next-auth/react"
+import { useSession } from "next-auth/react";
 
 const Page = () => {
   const [input, setInput] = useState<FormState>({
@@ -22,16 +22,18 @@ const Page = () => {
     phoneNumber: "",
   });
 
-  const [employmentHistory, setEmploymentHistory] = useState<EmploymentEntry[]>([
-    {
-      company: "",
-      title: "",
-      startDate: "",
-      endDate: "",
-      description: "",
-      location: "",
-    },
-  ]);
+  const [employmentHistory, setEmploymentHistory] = useState<EmploymentEntry[]>(
+    [
+      {
+        company: "",
+        title: "",
+        startDate: "",
+        endDate: "",
+        description: "",
+        location: "",
+      },
+    ]
+  );
 
   const [educationList, setEducationList] = useState<EducationEntry[]>([
     {
@@ -51,13 +53,16 @@ const Page = () => {
       description: "",
     },
   ]);
-  const { data: session} = useSession()
+  const { status } = useSession();
 
-  if (!session) {
-     redirect("/api/auth/signin");
-  }
+  useEffect(() => {
+    if (status === "loading") return; // Avoid redirection during loading
 
-  
+    if (status !== "authenticated") {
+      redirect("/api/auth/signin");
+    }
+  }, [status]);
+
   return (
     <div className="mt-16 sm:h-[91vh] flex flex-col md:flex-row px-4 md:px-10 gap-6 ">
       <div className="w-full md:w-[70%] ">
@@ -75,7 +80,7 @@ const Page = () => {
         />
       </div>
 
-      <div className="w-full md:w-[30%] border-4 rounded-md shadow-sm overflow-y-auto max-h-[90vh]">
+      <div className="w-full md:w-[30%] border-4 rounded-md shadow-sm  max-h-[90vh]">
         <ResumePreview
           skills={skills}
           isFullView={false}

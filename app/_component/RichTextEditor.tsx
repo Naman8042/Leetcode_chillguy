@@ -42,7 +42,7 @@ export default function RichTextEditor({ value, onChange }: Props) {
 
   return (
     <div className="border rounded my-4">
-      <div ref={editorRef} className="min-h-[150px] p-2 ">
+      <div ref={editorRef} className="h-[80px] p-2 ">
         </div>
     </div>
   );

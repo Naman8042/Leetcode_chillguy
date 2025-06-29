@@ -185,7 +185,7 @@ const ResumeInput = ({
   </div>
 
   {/* Navigation Buttons */}
-  <div className="flex justify-between items-center mt-4">
+  <div className="flex justify-between  h-10">
     <Button
       onClick={handleBack}
       disabled={sectionIndex === 0}
