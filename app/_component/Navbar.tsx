@@ -11,9 +11,10 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const routes = {
   "Code Snippet": "/codesnippet",
-  "Compare": "/compare",
+  "Create Resume": "/resume",
   "Recursion Tree": "/code",
   "Execution Flow": "/execution",
+  "Compare": "/compare",
 };
 
 const Navbar = () => {

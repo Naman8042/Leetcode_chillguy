@@ -2,6 +2,7 @@
 import Image from "next/image";
 import Recursion_tree from "@/assets/Recursion_tree.png";
 import Code_Execution from "@/assets/Code_execution.png";
+import Resume_Builder from '@/assets/Resume_builder.png'
 import Compare from "@/assets/Compare.png";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -36,6 +37,14 @@ function Grid() {
           input: true,
           buttonText: "Analyse Profile",
         },
+        {
+          title: "Resume Builder",
+          description:
+            "Create a professional resume by entering your personal, academic, and work details. Easily edit and download in A4 format.",
+          image:Resume_Builder,
+          link: "/resume",
+        },
+
         {
           title: "Save Code Snippets",
           description:
@@ -89,7 +98,7 @@ function Grid() {
                 if (id) {
                   router.push(`/analyse/${id}`);
                 } else {
-                  toast.error("Please enter a LeetCode username")
+                  toast.error("Please enter a LeetCode username");
                 }
               }}
             >
