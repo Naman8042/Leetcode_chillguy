@@ -23,10 +23,10 @@ const Navbar = () => {
   const { status } = useSession();
 
   return (
-    <nav className="p-5 shadow-md z-50 flex justify-between items-center h-16 px-5 md:px-10 fixed top-0 bg-white w-full">
+    <nav className="p-5 shadow-md z-50 flex justify-between items-center h-[10vh] px-5 md:px-10 fixed top-0 bg-white w-full">
       {/* Logo */}
       <div
-        className="flex items-center cursor-pointer"
+        className="flex items-center cursor-pointer  sm:w-[25%]"
         onClick={() => router.push(`/`)}
       >
         <Image src={Navbar_logo} alt="Logo" width={40} height={40} />
@@ -36,7 +36,7 @@ const Navbar = () => {
       </div>
 
       {/* Desktop Menu */}
-      <div className="hidden sm:flex space-x-6 font-semibold">
+      <div className="hidden sm:flex items-center space-x-6 font-semibold ">
         {Object.entries(routes).map(([name, path]) => (
           <div
             key={path}
@@ -50,7 +50,7 @@ const Navbar = () => {
       </div>
 
       {/* Buttons & Mobile Menu Toggle */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3  w-[25%] justify-end">
         {/* Desktop Buttons */}
         <div className="hidden sm:flex gap-2 w-40 justify-end">
           {status !== "authenticated" ? (

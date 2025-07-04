@@ -14,7 +14,7 @@ import toast from "react-hot-toast";
 
 export default function Home() {
   return (
-    <div className="mt-16 ">
+    <div className="">
       <HeroCarousel />
       <Grid />
     </div>
