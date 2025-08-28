@@ -46,6 +46,8 @@ export async function POST(req: NextRequest) {
 
     // Create textual tree representation
 
+    console.log(rawText)
+
     return NextResponse.json({
       success: true,
       data: {

@@ -19,7 +19,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
       <Sidebar />
       <div className="flex-1 md:ml-[25%] md:p-6 overflow-y-auto ">{children}</div>
     </div>
-    <Footer />
+    {/* <Footer /> */}
   </div>
 );
 

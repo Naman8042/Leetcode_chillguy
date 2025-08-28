@@ -85,7 +85,7 @@ export default function Sidebar() {
     //     </DialogContent>
     //   </Dialog>
     // </div>
-    <div className="flex">
+    <div className="flex fixed left-0 w-full">
       {/* Sidebar for larger screens */}
       <div className="hidden md:block w-1/4 bg-gray-50 p-4 border-r h-[91vh] absolute left-0">
         <h2 className="text-lg font-bold mb-4">Folders</h2>

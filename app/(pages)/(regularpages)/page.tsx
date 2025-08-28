@@ -28,7 +28,7 @@ function Grid() {
   );
   return (
     // Enhanced Grid Component with Improved Styling
-    <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 px-5 sm:px-8 md:px-10 lg:px-16 py-20">
+    <div className="max-w-7xl mx-auto mt-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10  py-20">
       {[
         {
           title: "Leetcode Profile Analysis",

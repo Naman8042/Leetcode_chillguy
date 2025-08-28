@@ -23,7 +23,8 @@ const Navbar = () => {
   const { status } = useSession();
 
   return (
-    <nav className="p-5 shadow-md z-50 flex justify-between items-center h-[10vh] px-5 md:px-10 fixed top-0 bg-white w-full">
+    <div className="p-5 shadow-md h-[8vh] sm:h-[10vh] flex items-center justify-center fixed top-0 w-full bg-white z-50">
+      <nav className="max-w-7xl   flex justify-between items-center    w-full">
       {/* Logo */}
       <div
         className="flex items-center cursor-pointer  sm:w-[25%]"
@@ -126,6 +127,7 @@ const Navbar = () => {
         )}
       </AnimatePresence>
     </nav>
+    </div>
   );
 };
 
