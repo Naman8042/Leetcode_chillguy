@@ -1,36 +1,38 @@
-"use client"
-import React, { useState } from 'react';
-import { Play, Copy, Download, Terminal } from 'lucide-react';
+"use client";
 
-// Mock Monaco Editor component since we don't have access to the actual package
+import React, { useState } from 'react';
+import { 
+  Play, Copy, Download, Terminal, 
+  Code2, Eraser, Loader2,
+  FileCode, ChevronDown
+} from 'lucide-react';
+
+// --- MOCK MONACO EDITOR (Light Theme) ---
 interface MonacoEditorProps {
-  height: string;
-  defaultLanguage: string;
   value: string;
   onChange: (value: string) => void;
-  theme: string;
-  options: {
-    fontSize: number;
-    minimap: { enabled: boolean };
-    lineNumbers: string;
-    wordWrap: string;
-    scrollBeyondLastLine: boolean;
-    automaticLayout: boolean;
-  };
+  language:string
 }
 
-const MonacoEditor: React.FC<MonacoEditorProps> = ({ value, onChange }) => {
+const MonacoEditor: React.FC<MonacoEditorProps> = ({ value, onChange, language }) => {
   return (
-    <textarea
-      className="w-full h-full bg-black text-white p-4 font-mono text-sm resize-none border-none outline-none"
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      placeholder="Write your code here..."
-      style={{ 
-        fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
-        minHeight: '400px'
-      }}
-    />
+    <div className="relative h-full w-full bg-white font-mono text-sm group">
+      {/* Line Numbers */}
+      <div className="absolute left-0 top-0 bottom-0 w-12 bg-slate-50 border-r border-slate-200 text-slate-400 flex flex-col items-end pr-3 pt-4 select-none">
+        {value.split('\n').map((_, i) => (
+          <div key={i} className="leading-6 text-xs">{i + 1}</div>
+        ))}
+      </div>
+      
+      {/* Text Area */}
+      <textarea
+        className="w-full h-full bg-transparent text-slate-800 resize-none border-none outline-none p-4 pl-14 leading-6 font-mono whitespace-pre placeholder:text-slate-300"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={`Write your ${language} code here...`}
+        spellCheck={false}
+      />
+    </div>
   );
 };
 
@@ -39,20 +41,19 @@ export default function EnhancedCodeEditor() {
   const [output, setOutput] = useState<string[]>([]);
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [language, setLanguage] = useState<string>('javascript');
-  const [showOutput, setShowOutput] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<'editor' | 'output'>('editor'); // For mobile
 
   const getCode = async (): Promise<void> => {
     setIsRunning(true);
-    setShowOutput(true);
+    // Auto-switch to output on mobile when running
+    if (window.innerWidth < 768) setActiveTab('output');
+    
     setOutput(['🚀 Executing code...', 'Processing input...', 'Running analysis...']);
     
     try {
-      // Since we can't use axios in artifacts, we'll use fetch instead
       const response = await fetch("/api/codevisuals", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code: text }),
       });
       
@@ -60,14 +61,12 @@ export default function EnhancedCodeEditor() {
         const data = await response.json();
         if (data.success) {
           const rawText: string = data.data.rawText;
-          console.log(rawText);
-          
-          // Process the text to remove special characters and clean it up
+          // Clean up text
           const formattedText: string[] = rawText
-            .replace(/[*-]/g, "") // Remove '*' and '-' characters
-            .replace(/`/g, "") // Remove '`' characters
-            .split("\n") // Split into lines
-            .filter((line: string) => line.trim() !== ""); // Remove empty lines
+            .replace(/[*-]/g, "")
+            .replace(/`/g, "")
+            .split("\n")
+            .filter((line: string) => line.trim() !== "");
 
           setOutput(formattedText);
         } else {
@@ -79,10 +78,8 @@ export default function EnhancedCodeEditor() {
     } catch (error) {
       console.error("Error fetching data:", error);
       setOutput([
-        "An error occurred while connecting to the server.",
-        "Please check your connection and try again.",
-        "",
-        `Error details: ${error instanceof Error ? error.message : 'Unknown error'}`
+        "❌ Connection Error",
+        `Details: ${error instanceof Error ? error.message : 'Unknown error'}`
       ]);
     } finally {
       setIsRunning(false);
@@ -98,209 +95,157 @@ export default function EnhancedCodeEditor() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `code.${language === 'javascript' ? 'js' : 'txt'}`;
+    // a.download = `code.${language === 'javascript' ? 'js' : 'txt'}`;
     a.click();
     URL.revokeObjectURL(url);
   };
 
   return (
-    <div className="sm:h-[93vh] pt-16 bg-green-500 text-white ">
-      {/* Mobile Header */}
-      <div className="md:hidden bg-black border-b border-gray-800 p-3">
-        <div className="flex items-center justify-between">
-          <h1 className="text-lg font-semibold">Code Editor</h1>
-          <div className="flex gap-2">
-            <button
-              onClick={copyCode}
-              className="p-2 bg-gray-900 hover:bg-gray-800 rounded transition-colors"
-            >
-              <Copy size={16} />
-            </button>
-            <button
-              onClick={downloadCode}
-              className="p-2 bg-gray-900 hover:bg-gray-800 rounded transition-colors"
-            >
-              <Download size={16} />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Mobile Tab Navigation */}
-      <div className="md:hidden bg-black border-b border-gray-800">
-        <div className="flex">
-          <button
-            onClick={() => setShowOutput(false)}
-            className={`flex-1 py-3 px-4 text-center font-medium transition-colors ${
-              !showOutput
-                ? 'bg-white text-black border-b-2 border-white'
-                : 'text-gray-400 hover:text-white'
-            }`}
-          >
-            <Terminal size={16} className="inline mr-2" />
-            Editor
-          </button>
-          <button
-            onClick={() => setShowOutput(true)}
-            className={`flex-1 py-3 px-4 text-center font-medium transition-colors ${
-              showOutput
-                ? 'bg-white text-black border-b-2 border-white'
-                : 'text-gray-400 hover:text-white'
-            }`}
-          >
-            <Play size={16} className="inline mr-2" />
-            Output
-          </button>
-        </div>
-      </div>
-      <div className="md:hidden p-3 bg-black border-t border-gray-800">
-            <button
-              onClick={getCode}
-              disabled={isRunning}
-              className={`w-full flex items-center justify-center gap-2 py-3 rounded font-medium transition-colors ${
-                isRunning
-                  ? 'bg-gray-800 cursor-not-allowed border border-gray-700'
-                  : 'bg-white text-black hover:bg-gray-100'
-              }`}
-            >
-              <Play size={16} />
-              {isRunning ? 'Running...' : 'Run Code'}
-            </button>
-          </div>
-      {/* Main Content */}
-      <div className="flex flex-col md:flex-row h-[calc(100vh-80px)] md:h-[90vh]">
-        {/* Editor Section */}
-        <div className={`${showOutput ? 'hidden' : 'flex'} md:flex md:w-1/2 flex-col bg-black h-full`}>
-          {/* Desktop Header */}
-          <div className="hidden md:flex justify-between items-center py-3 px-4 border-b border-gray-800">
-            <div className="flex items-center gap-4">
-              <h2 className="font-semibold">Code Editor</h2>
-              <select
-                value={language}
-                onChange={(e) => setLanguage(e.target.value)}
-                className="bg-gray-900 text-white px-3 py-1 rounded text-sm border border-gray-700"
-              >
-                <option value="javascript">JavaScript</option>
-                <option value="python">Python</option>
-                <option value="html">HTML</option>
-                <option value="css">CSS</option>
-              </select>
+    <div className="min-h-screen pt-16 bg-slate-50 text-slate-900 font-sans flex flex-col">
+      
+      {/* --- HEADER --- */}
+      <div className="bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between shadow-sm z-10">
+        
+        {/* Title & Language Selector */}
+        <div className="flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-2">
+            <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+              <Code2 size={20} />
             </div>
-            <div className="flex gap-2">
-              <button
-                onClick={copyCode}
-                className="p-2 bg-gray-900 hover:bg-gray-800 rounded transition-colors border border-gray-700"
-                title="Copy Code"
-              >
-                <Copy size={16} />
-              </button>
-              <button
-                onClick={downloadCode}
-                className="p-2 bg-gray-900 hover:bg-gray-800 rounded transition-colors border border-gray-700"
-                title="Download Code"
-              >
-                <Download size={16} />
-              </button>
-              <button
-                onClick={getCode}
-                disabled={isRunning}
-                className={`flex items-center gap-2 px-4 py-2 rounded font-medium transition-colors border ${
-                  isRunning
-                    ? 'bg-gray-800 cursor-not-allowed border-gray-700'
-                    : 'bg-white text-black hover:bg-gray-100 border-white'
-                }`}
-              >
-                <Play size={16} />
-                {isRunning ? 'Running...' : 'Run'}
-              </button>
+            <div>
+              <h1 className="text-sm font-bold text-slate-800">Code Playground</h1>
+              <p className="text-xs text-slate-500">Execution Environment</p>
             </div>
           </div>
 
-          {/* Editor */}
-          <div className="flex-1 border border-gray-800 m-2 rounded overflow-hidden">
-            <MonacoEditor
-              height="100%"
-              defaultLanguage={language}
-              value={text}
-              onChange={(value) => setText(value || "")}
-              theme="vs-dark"
-              options={{
-                fontSize: 14,
-                minimap: { enabled: false },
-                lineNumbers: "on",
-                wordWrap: "on",
-                scrollBeyondLastLine: false,
-                automaticLayout: true,
-              }}
-            />
+          <div className="relative group">
+            <select
+              value={language}
+              onChange={(e) => setLanguage(e.target.value)}
+              className="appearance-none pl-9 pr-8 py-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all cursor-pointer"
+            >
+              <option value="javascript">JavaScript</option>
+              <option value="python">Python</option>
+              <option value="html">HTML</option>
+              <option value="css">CSS</option>
+            </select>
+            <FileCode size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
           </div>
+        </div>
 
-          {/* Mobile Run Button */}
+        {/* Actions */}
+        <div className="flex items-center gap-2">
+          <button onClick={copyCode} className="p-2 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition-colors" title="Copy">
+            <Copy size={18} />
+          </button>
+          <button onClick={downloadCode} className="p-2 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition-colors" title="Download">
+            <Download size={18} />
+          </button>
           
+          <div className="h-6 w-px bg-slate-200 mx-2 hidden sm:block" />
+          
+          <button
+            onClick={getCode}
+            disabled={isRunning}
+            className={`
+              flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition-all
+              ${isRunning 
+                ? 'bg-slate-100 text-slate-400 cursor-not-allowed' 
+                : 'bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow-indigo-200 active:scale-95'}
+            `}
+          >
+            {isRunning ? <Loader2 size={16} className="animate-spin" /> : <Play size={16} fill="currentColor" />}
+            <span className="hidden sm:inline">{isRunning ? 'Running...' : 'Run Code'}</span>
+          </button>
+        </div>
+      </div>
+
+      {/* --- MOBILE TABS --- */}
+      <div className="md:hidden flex border-b border-slate-200 bg-white">
+        <button 
+          onClick={() => setActiveTab('editor')}
+          className={`flex-1 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === 'editor' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500'}`}
+        >
+          Editor
+        </button>
+        <button 
+          onClick={() => setActiveTab('output')}
+          className={`flex-1 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === 'output' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500'}`}
+        >
+          Output
+        </button>
+      </div>
+
+      {/* --- MAIN CONTENT --- */}
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+        
+        {/* EDITOR SECTION */}
+        <div className={`
+          flex-1 bg-white flex flex-col border-r border-slate-200 transition-all duration-300
+          ${activeTab === 'editor' ? 'flex' : 'hidden md:flex'}
+        `}>
+          <div className="flex-1 relative overflow-hidden">
+             <MonacoEditor value={text} onChange={setText}  language={language}/>
+          </div>
         </div>
 
-        {/* Output Section */}
-        <div className={`${!showOutput ? 'hidden' : 'flex'} md:flex md:w-1/2 flex-col bg-black h-full md:border-l border-gray-800`}>
-          {/* Output Header */}
-          <div className="flex items-center justify-between py-3 px-4 border-b border-gray-800">
-            <h2 className="font-semibold">Output</h2>
-            <button
+        {/* OUTPUT SECTION */}
+        <div className={`
+          w-full md:w-[45%] lg:w-[40%] bg-slate-50 flex flex-col transition-all duration-300
+          ${activeTab === 'output' ? 'flex' : 'hidden md:flex'}
+        `}>
+          {/* Output Toolbar */}
+          <div className="flex items-center justify-between px-4 py-2 bg-slate-50 border-b border-slate-200 text-xs font-medium text-slate-500">
+            <div className="flex items-center gap-2">
+              <Terminal size={14} />
+              <span>Console Output</span>
+            </div>
+            <button 
               onClick={() => setOutput([])}
-              className="px-3 py-1 bg-gray-900 hover:bg-gray-800 rounded text-sm transition-colors border border-gray-700"
+              className="flex items-center gap-1.5 px-2 py-1 hover:bg-slate-200 rounded text-slate-600 transition-colors"
             >
+              <Eraser size={12} />
               Clear
             </button>
           </div>
 
           {/* Output Content */}
-          <div className="flex-1 p-4 overflow-y-auto">
+          <div className="flex-1 p-4 overflow-y-auto font-mono text-sm">
             {output.length > 0 ? (
-              output.map((line, index) => {
-                // Check for headings and add styles
-                if (
-                  line.toLowerCase().includes("final output") ||
-                  line.toLowerCase().includes("execution steps") ||
-                  line.toLowerCase().includes("initial input") ||
-                  line.includes("===")
-                ) {
+              <div className="space-y-2">
+                {output.map((line, index) => {
+                  const lowerLine = line.toLowerCase();
+                  let styleClass = "text-slate-600 pl-2 border-l-2 border-slate-200";
+
+                  if (lowerLine.includes("error") || lowerLine.includes("❌")) {
+                    styleClass = "text-red-600 bg-red-50 p-2 rounded border-l-2 border-red-500";
+                  } else if (lowerLine.includes("success") || line.includes("✅")) {
+                    styleClass = "text-emerald-700 bg-emerald-50 p-2 rounded border-l-2 border-emerald-500";
+                  } else if (lowerLine.includes("executing") || lowerLine.includes("processing")) {
+                    styleClass = "text-indigo-600 italic pl-2 border-l-2 border-indigo-200";
+                  } else if (line.includes("===")) {
+                    styleClass = "text-slate-900 font-bold mt-4 border-b border-slate-200 pb-1";
+                  }
+
                   return (
-                    <p key={index} className="mb-4 text-lg font-bold text-white">
+                    <div key={index} className={`${styleClass} break-words`}>
                       {line}
-                    </p>
+                    </div>
                   );
-                }
-                // Error messages
-                if (line.toLowerCase().includes("error") || line.includes("❌")) {
-                  return (
-                    <p key={index} className="mb-2 text-gray-300 font-medium">
-                      {line}
-                    </p>
-                  );
-                }
-                // Success messages
-                if (line.includes("✅") || line.toLowerCase().includes("success")) {
-                  return (
-                    <p key={index} className="mb-2 text-white font-medium">
-                      {line}
-                    </p>
-                  );
-                }
-                // Regular lines
-                return (
-                  <p key={index} className="mb-2 text-gray-300 leading-relaxed">
-                    {line}
-                  </p>
-                );
-              })
+                })}
+              </div>
             ) : (
-              <div className="text-center text-gray-500 mt-8">
-                <Terminal size={48} className="mx-auto mb-4 opacity-50" />
-                <p>No output to display yet.</p>
-                <p className="text-sm mt-2">Run your code to see the results here.</p>
+              <div className="h-full flex flex-col items-center justify-center text-slate-400 gap-3">
+                <div className="w-12 h-12 rounded-xl bg-slate-200/50 flex items-center justify-center">
+                  <Terminal size={24} />
+                </div>
+                <p>Run code to see output...</p>
               </div>
             )}
           </div>
         </div>
+
       </div>
     </div>
   );

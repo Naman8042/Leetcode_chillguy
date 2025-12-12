@@ -540,16 +540,17 @@
 // }
 
 "use client";
-import { useState, useEffect, useRef } from "react";
-import axios from "axios";
-import dynamic from "next/dynamic";
+
+import{ useState, useEffect, useRef, useCallback } from "react";
+import axios from "axios"; 
 import * as d3 from "d3";
+import { 
+  Play, ZoomIn, ZoomOut, RotateCcw, 
+ Layers, Settings,
+  Maximize2, Minimize2, Loader2
+} from "lucide-react";
 
-// Dynamically import Monaco Editor
-const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
-  ssr: false,
-});
-
+// --- TYPES ---
 interface RecursionTreeNode {
   name: string;
   params: string[];
@@ -562,167 +563,299 @@ interface RawRecursionNode {
   children: RawRecursionNode[];
 }
 
-interface D3Node {
-  name: string;
-  children: D3Node[];
-}
+// --- MOCK EDITOR COMPONENT ---
+const SimpleEditor = ({ value, onChange }: { value: string, onChange: (val: string) => void }) => {
+  return (
+    <div className="relative h-full w-full bg-white font-mono text-sm">
+      <div className="absolute left-0 top-0 bottom-0 w-12 bg-slate-50 border-r border-slate-200 text-slate-400 flex flex-col items-end pr-2 pt-4 select-none">
+        {value.split('\n').map((_, i) => (
+          <div key={i} className="leading-6">{i + 1}</div>
+        ))}
+      </div>
+      <textarea
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full h-full bg-transparent text-slate-800 resize-none outline-none p-4 pl-14 leading-6 font-mono whitespace-pre placeholder:text-slate-300"
+        spellCheck={false}
+      />
+    </div>
+  );
+};
 
 const CodeExecutionPage = () => {
-  const [recursionTree, setRecursionTree] = useState<RecursionTreeNode[]>([]);
-  const [text, setText] = useState<string>("");
-  const svgRef = useRef<SVGSVGElement | null>(null);
+  const [treeData, setTreeData] = useState<RecursionTreeNode | null>(null);
+  const [code, setCode] = useState<string>(`// Write a function to visualize
+// Example: Fibonacci Sequence
 
-  const getCode = async () => {
+function fib(n) {
+  if (n <= 1) return n;
+  return fib(n-1) + fib(n-2);
+}
+
+// Call the function
+fib(4);`);
+  
+  const [isLoading, setIsLoading] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const svgRef = useRef<SVGSVGElement | null>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  // --- API CALL & DATA TRANSFORMATION ---
+  const handleRunCode = async () => {
+    if (!code.trim()) return;
+    setIsLoading(true);
+
     try {
-      const response = await axios.post("/api/recursion_tree", { code: text });
+      const response = await axios.post("/api/recursion_tree", { code });
 
       if (response.data.success) {
         let rawText = response.data.data.rawText;
-        console.log("Raw Response:", rawText);
-
+        
+        // Clean up markdown code blocks if present in the LLM response
         rawText = rawText.replace(/```json\n?/, "").replace(/\n?```/, "");
-        const jsonData = JSON.parse(rawText);
+        
+        const jsonData: RawRecursionNode = JSON.parse(rawText);
 
+        // Transform backend format to UI format
         const transformRecursionTree = (node: RawRecursionNode): RecursionTreeNode => ({
           name: node.function,
           params: Object.entries(node.params).map(([key, value]) => `${key}: ${String(value)}`),
           children: node.children.map(transformRecursionTree),
         });
 
-        setRecursionTree([transformRecursionTree(jsonData)]);
+        setTreeData(transformRecursionTree(jsonData));
       } else {
-        console.error("API response not successful:", response.data);
+        console.error("API Error:", response.data);
+        alert("Failed to generate tree. Check console for details.");
       }
     } catch (error) {
       console.error("Error fetching data:", error);
+      alert("Error connecting to server.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const renderRecursionTree = () => {
-    if (recursionTree.length === 0 || !svgRef.current) return;
+  // --- D3 VISUALIZATION LOGIC ---
+  const renderTree = useCallback(() => {
+    if (!treeData || !svgRef.current || !wrapperRef.current) return;
 
-    // Clear previous render
-    d3.select(svgRef.current).selectAll("*").remove();
+    const { width,} = wrapperRef.current.getBoundingClientRect();
+    const svg = d3.select(svgRef.current);
+    svg.selectAll("*").remove(); // Clear previous
 
-    // Transform data for D3
-    const transformData = (node: RecursionTreeNode): D3Node => ({
-      name: `${node.name}(${node.params.join(", ")})`,
-      children: node.children.map(transformData),
-    });
+    // Zoom Behavior
+    const g = svg.append("g");
+    const zoom = d3.zoom<SVGSVGElement, unknown>()
+      .scaleExtent([0.1, 2])
+      .on("zoom", (event) => g.attr("transform", event.transform));
+    
+    svg.call(zoom);
 
-    const root = d3.hierarchy(transformData({ name: "root", params: [], children: recursionTree }));
+    // Hierarchy & Layout
+    const root = d3.hierarchy<RecursionTreeNode>(treeData);
+    
+    // Increased horizontal spacing from 100 to 180 to prevent overlap
+    const treeLayout = d3.tree<RecursionTreeNode>().nodeSize([180, 120]); 
+    treeLayout(root);
 
-    // Layout with no fixed size yet
-    const treeLayout = d3.tree<D3Node>().nodeSize([120, 200]);
-    const treeData = treeLayout(root);
-
-    // Calculate required SVG size
-    const xValues = treeData.descendants().map(d => d.x);
-    const yValues = treeData.descendants().map(d => d.y);
-
-    const minX = Math.min(...xValues);
-    const maxX = Math.max(...xValues);
-    const minY = Math.min(...yValues);
-    const maxY = Math.max(...yValues);
-
-    const svgWidth = maxX - minX + 200;
-    const svgHeight = maxY - minY + 200;
-
-    d3.select(svgRef.current)
-      .attr("width", svgWidth)
-      .attr("height", svgHeight);
-
-    const g = d3.select(svgRef.current)
-      .append("g")
-      .attr("transform", `translate(${100 - minX}, ${50 - minY})`);
-
-    // Links
+    // Links (Curved lines)
     g.selectAll(".link")
-      .data(treeData.links())
+      .data(root.links())
       .enter()
-      .append("line")
-      .attr("x1", d => d.source.x)
-      .attr("y1", d => d.source.y)
-      .attr("x2", d => d.target.x)
-      .attr("y2", d => d.target.y)
-      .style("stroke", "#ccc");
+      .append("path")
+      .attr("class", "link")
+      .attr("d", d3.linkVertical()
+        .x((d: any) => d.x)
+        .y((d: any) => d.y) as any
+      )
+      .attr("fill", "none")
+      .attr("stroke", "#cbd5e1") // Slate-300
+      .attr("stroke-width", 2)
+      .attr("opacity", 0)
+      .transition().duration(500).delay((d, i) => i * 50)
+      .attr("opacity", 0.8);
 
-    // Nodes
-    g.selectAll(".node")
-      .data(treeData.descendants())
+    // Nodes (Groups)
+    const nodes = g.selectAll(".node")
+      .data(root.descendants())
       .enter()
-      .append("circle")
-      .attr("cx", d => d.x)
-      .attr("cy", d => d.y)
-      .attr("r", 20)
-      .style("fill", "#333")
-      .style("stroke", "#fff")
-      .style("stroke-width", 2);
+      .append("g")
+      .attr("class", "node")
+      .attr("transform", (d: any) => `translate(${d.x},${d.y})`)
+      .attr("cursor", "pointer");
 
-    // Labels
-    g.selectAll(".label")
-      .data(treeData.descendants())
-      .enter()
-      .append("text")
-      .attr("x", d => d.x + 25)
-      .attr("y", d => d.y + 5)
-      .text(d => d.data.name)
-      .style("fill", "#fff")
-      .style("font-size", "12px");
-  };
+    // Node: Tooltip Title (Native browser tooltip)
+    nodes.append("title")
+      .text(d => `${d.data.name}\n${d.data.params.join("\n")}`);
+
+    // Node: Circle Background
+    nodes.append("circle")
+      .attr("r", 0)
+      .attr("fill", "#ffffff") // White fill
+      .attr("stroke", (d) => d.children && d.children.length > 0 ? "#6366f1" : "#10b981") // Indigo (parent) vs Emerald (leaf)
+      .attr("stroke-width", 2.5)
+      .attr("class", "shadow-sm")
+      .transition().duration(500).ease(d3.easeBackOut)
+      .attr("r", 24);
+
+    // Node: Label (Function Name)
+    nodes.append("text")
+      .attr("dy", -35)
+      .attr("text-anchor", "middle")
+      .text((d) => d.data.name)
+      .attr("fill", "#64748b") // Slate-500
+      .style("font-size", "12px")
+      .style("font-weight", "bold")
+      .style("opacity", 0)
+      .transition().delay(300)
+      .style("opacity", 1);
+
+    // Helper to truncate long text
+    const truncate = (str: string, maxLength: number) => 
+      str.length > maxLength ? str.slice(0, maxLength) + "..." : str;
+
+    // Node: Params (Truncated)
+    nodes.append("text")
+      .attr("dy", 40) // Moved slightly lower to clear the circle
+      .attr("text-anchor", "middle")
+      .text((d) => truncate(d.data.params.join(", "), 25)) // Truncate to 25 chars
+      .attr("fill", "#1e293b") // Slate-800
+      .style("font-size", "11px") // Slightly smaller font
+      .style("font-weight", "500")
+      .style("font-family", "monospace");
+
+    // Center the tree initially
+    const initialTransform = d3.zoomIdentity.translate(width / 2, 50).scale(0.9); // Zoomed out slightly
+    svg.call(zoom.transform, initialTransform);
+
+  }, [treeData]);
 
   useEffect(() => {
-    renderRecursionTree();
-  }, [recursionTree]);
+    renderTree();
+    const handleResize = () => renderTree();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [renderTree]);
+
+  // --- HELPER ACTIONS ---
+  const resetView = () => {
+    if (!svgRef.current || !wrapperRef.current) return;
+    const { width } = wrapperRef.current.getBoundingClientRect();
+    const svg = d3.select(svgRef.current);
+    const zoom: any = d3.zoom().on("zoom", (e) => svg.select("g").attr("transform", e.transform));
+    svg.transition().duration(750).call(zoom.transform, d3.zoomIdentity.translate(width / 2, 50).scale(0.9));
+  };
 
   return (
-    <div className="p-6 h-svh text-white flex justify-between md:flex-row flex-col pt-20">
-      {/* Run button (mobile) */}
-      <div className="flex justify-center">
-        <button
-          onClick={getCode}
-          className="bg-black block md:hidden text-white w-1/2 text-base py-2 rounded-sm mb-1 hover:bg-blue-600"
-        >
-          Run
-        </button>
-      </div>
+    <div className={`flex flex-col h-screen bg-slate-50 text-slate-900 font-sans ${isFullscreen ? 'fixed inset-0 z-50' : 'relative pt-16'}`}>
+      
+      {/* --- TOOLBAR --- */}
+      <header className="flex items-center justify-between px-4 py-2 md:px-6 md:py-3 bg-white border-b border-slate-200">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-indigo-50 rounded-lg text-indigo-600">
+            <Layers size={20} />
+          </div>
+          <div className="hidden sm:block">
+            <h1 className="text-sm font-bold text-slate-800 tracking-wide">Recursion Visualizer</h1>
+            <p className="text-xs text-slate-500">Tree Depth Analysis</p>
+          </div>
+           {/* Mobile Title */}
+           <div className="sm:hidden">
+            <h1 className="text-sm font-bold text-slate-800 tracking-wide">Recursion Viz</h1>
+          </div>
+        </div>
 
-      {/* Code editor */}
-      <div className="md:w-1/2 h-[90vh] md:h-full bg-[#1e1e1e]">
-        <div className="flex justify-end py-2 pr-10 border-b-2">
-          <button
-            onClick={getCode}
-            className="bg-white hidden md:block text-black px-5 font-semibold text-sm py-1 mb-1 hover:bg-blue-600"
+        <div className="flex items-center gap-2 md:gap-4">
+           {/* Run Button */}
+           <button 
+            onClick={handleRunCode}
+            disabled={isLoading}
+            className={`
+              flex items-center gap-2 px-3 py-1.5 md:px-6 md:py-2 rounded-md font-semibold text-xs md:text-sm transition-all
+              ${isLoading 
+                ? "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200" 
+                : "bg-indigo-600 text-white hover:bg-indigo-700 shadow-md shadow-indigo-200 active:scale-95"}
+            `}
           >
-            Run
+            {isLoading ? <Loader2 size={16} className="animate-spin" /> : <Play size={16} fill="currentColor" />}
+            <span>{isLoading ? "Running..." : "Run"}</span>
+          </button>
+          
+          <div className="h-6 w-px bg-slate-200 mx-1 md:mx-2" />
+          
+          <button className="p-2 hover:bg-slate-100 rounded-md text-slate-500 hover:text-slate-800 transition-colors">
+            <Settings size={18} />
           </button>
         </div>
-        <div className="h-[92%] border border-gray-700 rounded">
-          <MonacoEditor
-            height="100%"
-            defaultLanguage="plaintext"
-            value={text}
-            onChange={value => setText(value || "")}
-            theme="vs-dark"
-            options={{
-              fontSize: 14,
-              minimap: { enabled: false },
-              lineNumbers: "on",
-              wordWrap: "on",
-              scrollBeyondLastLine: false,
-              automaticLayout: true,
-            }}
-          />
-        </div>
-      </div>
+      </header>
 
-      {/* Output section */}
-      <div className="md:w-1/2 h-[90vh] md:h-full border-l-2">
-        <div className="flex text-white font-semibold py-3 pl-10 bg-[#1e1e1e] border-b-2">
-          Output Section
+      {/* --- MAIN CONTENT SPLIT --- */}
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+        
+        {/* LEFT: EDITOR */}
+        <div className="w-full lg:w-[40%] h-[40vh] lg:h-auto flex flex-col border-b lg:border-b-0 lg:border-r border-slate-200 bg-white">
+          {/* <div className="flex items-center justify-between px-4 py-2 bg-slate-50 border-b border-slate-200 text-xs font-mono text-slate-500">
+            <div className="flex gap-4">
+              <span className="flex items-center gap-2 text-indigo-600 font-medium"><Code2 size={14}/> script.js</span>
+            </div>
+          </div> */}
+          <div className="flex-1 relative overflow-hidden">
+            <SimpleEditor
+              value={code}
+              onChange={setCode}
+            />
+          </div>
         </div>
-        <div className="bg-[#1e1e1e] p-4 shadow md:h-[92%] overflow-auto">
-          <svg ref={svgRef} id="recursionTree" className="border border-gray-800 rounded"></svg>
+
+        {/* RIGHT: VISUALIZATION */}
+        <div className="flex-1 h-[60vh] lg:h-auto flex flex-col bg-slate-50 relative">
+          
+          {/* Viz Toolbar */}
+          <div className="absolute top-4 right-4 z-10 flex flex-col gap-2">
+            <div className="flex flex-col bg-white rounded-lg border border-slate-200 shadow-lg overflow-hidden">
+              <button onClick={() => { if(svgRef.current) d3.select(svgRef.current).transition().call(d3.zoom().scaleBy as any, 1.2); }} className="p-2 hover:bg-slate-50 text-slate-500 hover:text-indigo-600 border-b border-slate-100" title="Zoom In">
+                <ZoomIn size={16} />
+              </button>
+              <button onClick={() => { if(svgRef.current) d3.select(svgRef.current).transition().call(d3.zoom().scaleBy as any, 0.8); }} className="p-2 hover:bg-slate-50 text-slate-500 hover:text-indigo-600 border-b border-slate-100" title="Zoom Out">
+                <ZoomOut size={16} />
+              </button>
+              <button onClick={resetView} className="p-2 hover:bg-slate-50 text-slate-500 hover:text-indigo-600" title="Reset View">
+                <RotateCcw size={16} />
+              </button>
+            </div>
+            
+            <button 
+              onClick={() => setIsFullscreen(!isFullscreen)}
+              className="p-2 bg-white hover:bg-slate-50 text-slate-500 hover:text-indigo-600 rounded-lg border border-slate-200 shadow-lg hidden sm:block"
+            >
+              {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+            </button>
+          </div>
+
+          {/* Viz Canvas */}
+          <div ref={wrapperRef} className="flex-1 w-full h-full overflow-hidden cursor-move bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:20px_20px]">
+            {treeData ? (
+               <svg ref={svgRef} className="w-full h-full" />
+            ) : (
+              <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 gap-4">
+                <div className="w-16 h-16 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-300">
+                  <Play size={32} />
+                </div>
+                <p className="text-sm">Run code to generate tree</p>
+              </div>
+            )}
+          </div>
+          
+          {/* Status Footer */}
+          <div className="px-4 py-2 bg-white border-t border-slate-200 text-xs text-slate-500 flex justify-between">
+            <span className="font-medium text-slate-700">{treeData ? "Active" : "Ready"}</span>
+            <div className="flex gap-4">
+               <span>Nodes: {treeData ? d3.hierarchy(treeData).descendants().length : 0}</span>
+               <span className="hidden sm:inline">Zoom: Scroll/Pinch</span>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -730,4 +863,3 @@ const CodeExecutionPage = () => {
 };
 
 export default CodeExecutionPage;
-

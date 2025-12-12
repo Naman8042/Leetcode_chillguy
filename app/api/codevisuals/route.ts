@@ -78,9 +78,7 @@
 import axios from 'axios';
 import { NextResponse, NextRequest } from 'next/server';
 
-const GEMINI_API_KEY = 'AIzaSyAUguCatnzMGk_yC1P_Ks_uhEE6gHNsE14';
-
-
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 
 export async function POST(req: NextRequest) {
@@ -118,7 +116,7 @@ The explanation should be detailed and easy to follow, suitable for debugging or
 `;
 
     const response = await axios.post(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
       {
         contents: [{
           parts: [{ text: prompt }]
