@@ -1,8 +1,6 @@
 "use client";
-
 import { useState, useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import Image from "next/image";
 import { Button } from "@/components/ui/button"; // Assuming you have shadcn/ui or similar
 import {
   Menu,
@@ -129,17 +127,9 @@ const Navbar = () => {
                   className="flex items-center gap-2 p-1 pl-2 pr-1 rounded-full border border-gray-200 hover:shadow-md transition-all bg-white"
                 >
                   <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden border border-blue-200">
-                    {session?.user?.image ? (
-                      <Image
-                        src={session.user.image}
-                        alt="User"
-                        width={32}
-                        height={32}
-                        className="object-cover"
-                      />
-                    ) : (
+                   
                       <User size={18} className="text-blue-600" />
-                    )}
+                   
                   </div>
                   <ChevronDown
                     size={16}
@@ -267,17 +257,8 @@ const Navbar = () => {
                   <div className="space-y-3">
                     <div className="flex items-center gap-3 px-3 py-2 bg-gray-50 rounded-lg">
                       <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold border border-blue-200">
-                        {session?.user?.image ? (
-                          <Image
-                            src={session.user.image}
-                            alt="User"
-                            width={40}
-                            height={40}
-                            className="rounded-full"
-                          />
-                        ) : (
-                          session?.user?.name?.[0] || <User size={20} />
-                        )}
+                        <User size={20} />
+                        
                       </div>
                       <div className="flex flex-col">
                         <span className="font-semibold text-sm">
