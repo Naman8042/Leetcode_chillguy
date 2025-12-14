@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Leetcode Chill Guy",
+  title: "CodeScope",
   description: "",
 };
 

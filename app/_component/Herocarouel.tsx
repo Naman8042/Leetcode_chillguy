@@ -104,7 +104,7 @@ const HeroCarousel: React.FC = () => {
   const slide = slides[currentSlide] ?? slides[0];
 
   return (
-    <section className="relative w-full min-h-dvh flex items-center justify-center overflow-hidden pt-24 pb-16 lg:pt-0 lg:pb-0">
+    <section className="relative w-full min-h-dvh sm:min-h-[90vh]   mt-[9vh] flex items-center justify-center overflow-hidden  ">
       {/* Background Decor */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
         <div className="absolute -top-[10%] -left-[10%] w-[70%] h-[40%] sm:w-[50%] sm:h-[50%] rounded-full bg-indigo-500/5 blur-[80px] sm:blur-[120px]" />
@@ -139,7 +139,7 @@ const HeroCarousel: React.FC = () => {
         </div>
 
         {/* RIGHT (Carousel) */}
-        <div className="relative w-full h-[350px] sm:h-[450px] lg:h-[500px] flex items-center justify-center">
+        <div className="relative w-full h-[350px] sm:h-[450px] lg:h-[500px] flex items-center justify-center sm:justify-end ">
           {/* Abstract blobs */}
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="w-[200px] h-[200px] sm:w-[300px] sm:h-[300px] bg-indigo-100 rounded-full blur-2xl sm:blur-3xl opacity-60 animate-pulse" />
