@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const HF_API_KEY = process.env.HUGGINGFACE_TOKEN;
 
 export async function POST(req: NextRequest) {
-  if (!GEMINI_API_KEY) {
-    console.error("GEMINI_API_KEY is not set");
+  if (!HF_API_KEY) {
+    console.error("HUGGINGFACE_TOKEN is not set");
     return NextResponse.json(
       {
         success: false,
-        error: "Server config error: GEMINI_API_KEY is missing.",
+        error: "Server config error: HUGGINGFACE_TOKEN is missing.",
       },
       { status: 500 }
     );
@@ -27,52 +27,75 @@ For the given input:
 
 ${input}
 
-Generate a recursion tree of the above code in JSON format for the given recursive function. 
-The JSON should have the following structure:
+Generate a recursion tree of the recursive function in STRICT JSON.
 
+Required JSON format:
 {
-  "function": "name of the recursive function",
-  "params": { ...all input parameters of the function... },
-  "result": <optional computed value at this step>,
-  "children": [ ...same structure for recursive calls; [] if base case... ]
+  "function": "functionName",
+  "params": { "param": "value" },
+  "result": "optional return value",
+  "children": [ ...recursive calls ]
 }
-Return ONLY valid JSON, with no explanations or markdown.
-    `;
+
+Rules:
+- Base case → children must be []
+- Return ONLY valid JSON
+- No markdown
+- No explanation
+`;
 
     const response = await axios.post(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+      "https://router.huggingface.co/v1/chat/completions",
       {
-        contents: [
+        model: "Qwen/Qwen2.5-7B-Instruct",
+        messages: [
           {
-            parts: [{ text: prompt }],
+            role: "system",
+            content:
+              "You are a compiler-level code analyzer that outputs only valid JSON.",
+          },
+          {
+            role: "user",
+            content: prompt,
           },
         ],
+        temperature: 0,
+        max_tokens: 1000,
       },
       {
-        params: { key: GEMINI_API_KEY },
+        headers: {
+          Authorization: `Bearer ${HF_API_KEY}`,
+          "Content-Type": "application/json",
+        },
       }
     );
 
-    const rawText = response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    const rawText = response.data?.choices?.[0]?.message?.content;
+
     if (!rawText) {
-      throw new Error("Invalid response format from Gemini API");
+      throw new Error("Invalid response format from Hugging Face API");
     }
 
-    console.log("Gemini rawText:", rawText);
+    console.log("HF rawText:", rawText);
 
-    // For now you’re just returning the raw text; you can later JSON.parse it if the model returns pure JSON
+    // Optional: strict JSON extraction safety
+    const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new Error("Model did not return valid JSON");
+    }
+
+    const recursionTree = JSON.parse(jsonMatch[0]);
+
     return NextResponse.json({
       success: true,
-      data: {
-        rawText,
-      },
+      data: recursionTree,
     });
   } catch (error: unknown) {
-    // Axios / Gemini specific handling
     if (axios.isAxiosError(error) && error.response) {
       const status = error.response.status;
+
       console.error(
-        "Gemini API error:",
+        "HF API error:",
         status,
         JSON.stringify(error.response.data, null, 2)
       );
@@ -81,8 +104,7 @@ Return ONLY valid JSON, with no explanations or markdown.
         return NextResponse.json(
           {
             success: false,
-            error:
-              "Model provider rate limit / quota exceeded. Please wait a bit and try again.",
+            error: "Rate limit exceeded. Please retry later.",
           },
           { status: 429 }
         );
@@ -91,23 +113,22 @@ Return ONLY valid JSON, with no explanations or markdown.
       return NextResponse.json(
         {
           success: false,
-          error: "Upstream Gemini API error",
+          error: "Upstream Hugging Face API error",
           details: error.response.data,
         },
         { status }
       );
     }
 
-    // Non-Axios or unknown error
     console.error("Unexpected error in /api/recursion_tree:", error);
-
-    const message =
-      error instanceof Error ? error.message : "An unknown error occurred";
 
     return NextResponse.json(
       {
         success: false,
-        error: message,
+        error:
+          error instanceof Error
+            ? error.message
+            : "An unknown error occurred",
       },
       { status: 500 }
     );

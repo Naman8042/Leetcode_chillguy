@@ -602,39 +602,38 @@ fib(4);`);
 
   // --- API CALL & DATA TRANSFORMATION ---
   const handleRunCode = async () => {
-    if (!code.trim()) return;
-    setIsLoading(true);
+  if (!code.trim()) return;
+  setIsLoading(true);
 
-    try {
-      const response = await axios.post("/api/recursion_tree", { code });
+  try {
+    const response = await axios.post("/api/recursion_tree", { code });
 
-      if (response.data.success) {
-        let rawText = response.data.data.rawText;
-        
-        // Clean up markdown code blocks if present in the LLM response
-        rawText = rawText.replace(/```json\n?/, "").replace(/\n?```/, "");
-        
-        const jsonData: RawRecursionNode = JSON.parse(rawText);
+    if (response.data.success) {
+      const jsonData: RawRecursionNode = response.data.data;
 
-        // Transform backend format to UI format
-        const transformRecursionTree = (node: RawRecursionNode): RecursionTreeNode => ({
-          name: node.function,
-          params: Object.entries(node.params).map(([key, value]) => `${key}: ${String(value)}`),
-          children: node.children.map(transformRecursionTree),
-        });
+      const transformRecursionTree = (
+        node: RawRecursionNode
+      ): RecursionTreeNode => ({
+        name: node.function,
+        params: Object.entries(node.params).map(
+          ([key, value]) => `${key}: ${String(value)}`
+        ),
+        children: node.children.map(transformRecursionTree),
+      });
 
-        setTreeData(transformRecursionTree(jsonData));
-      } else {
-        console.error("API Error:", response.data);
-        alert("Failed to generate tree. Check console for details.");
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      alert("Error connecting to server.");
-    } finally {
-      setIsLoading(false);
+      setTreeData(transformRecursionTree(jsonData));
+    } else {
+      console.error("API Error:", response.data);
+      alert("Failed to generate tree. Check console for details.");
     }
-  };
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    alert("Error connecting to server.");
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   // --- D3 VISUALIZATION LOGIC ---
   const renderTree = useCallback(() => {
